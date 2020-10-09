@@ -1,6 +1,6 @@
 package com.lucas3.contanos.repository;
 
-import com.lucas3.contanos.entity.Report;
+import com.lucas3.contanos.entities.Report;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
