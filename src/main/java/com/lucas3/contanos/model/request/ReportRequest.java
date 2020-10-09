@@ -1,4 +1,4 @@
-package com.lucas3.contanos.model;
+package com.lucas3.contanos.model.request;
 
 public class ReportRequest {
 

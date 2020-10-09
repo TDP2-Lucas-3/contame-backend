@@ -1,23 +1,24 @@
-package com.lucas3.contanos.model;
+package com.lucas3.contanos.entities;
 
-import com.lucas3.contanos.entity.Report;
 
-public class ReportResponse {
+import javax.persistence.*;
 
+@Entity
+@Table(name ="reports")
+public class Report {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String title;
     private String description;
 
-    public ReportResponse(Long id, String title, String description) {
-        this.id = id;
+    public Report() {}
+
+    public Report(String title, String description) {
         this.title = title;
         this.description = description;
-    }
-
-    public ReportResponse(Report report){
-        this.id = report.getId();
-        this.title = report.getTitle();
-        this.description = report.getDescription();
     }
 
     public Long getId() {

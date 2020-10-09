@@ -1,17 +1,13 @@
 package com.lucas3.contanos.service;
 
-import com.lucas3.contanos.entity.Report;
-import com.lucas3.contanos.model.ReportRequest;
+import com.lucas3.contanos.entities.Report;
+import com.lucas3.contanos.model.request.ReportRequest;
 import com.lucas3.contanos.model.exception.ReportNotFoundException;
-import com.lucas3.contanos.repository.ReportRepository;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-import org.junit.Assert.*;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
