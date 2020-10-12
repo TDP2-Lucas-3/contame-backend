@@ -7,14 +7,14 @@ public class ReportRequest {
     private String title;
     private String description;
     private String location;
-    private MultipartFile file;
+    private MultipartFile image;
 
 
-    public ReportRequest(String title, String description, String location, MultipartFile file) {
+    public ReportRequest(String title, String description, String location, MultipartFile image) {
         this.title = title;
         this.description = description;
         this.location = location;
-        this.file = file;
+        this.image = image;
     }
 
     public String getDescription() {
@@ -41,11 +41,11 @@ public class ReportRequest {
         this.location = location;
     }
 
-    public MultipartFile getFile() {
-        return file;
+    public MultipartFile getImage() {
+        return image;
     }
 
-    public void setFile(MultipartFile file) {
-        this.file = file;
+    public void setImage(MultipartFile image) {
+        this.image = image;
     }
 }
