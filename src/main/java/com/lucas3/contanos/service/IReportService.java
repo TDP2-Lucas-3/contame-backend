@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface IReportService {
 
-    Report createReport(ReportRequest request) throws IOException, FailedToLoadImageException;
+    Report createReport(ReportRequest request) throws FailedToLoadImageException;
 
     List<Report> getAllReports();
 
