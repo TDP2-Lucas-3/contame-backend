@@ -23,8 +23,8 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
-    @PostMapping(value= "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createReport(ReportRequest request) {
+    @PostMapping(value= "")
+    public ResponseEntity<?> createReport(@RequestBody ReportRequest request) {
         ReportResponse response = null;
         try{
             response = new ReportResponse(reportService.createReport(request));
