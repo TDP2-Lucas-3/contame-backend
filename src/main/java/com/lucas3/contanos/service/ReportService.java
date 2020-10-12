@@ -34,7 +34,7 @@ public class ReportService implements IReportService{
 
 
     @Override
-    public Report createReport(ReportRequest request) throws IOException, FailedToLoadImageException {
+    public Report createReport(ReportRequest request) throws FailedToLoadImageException {
         Report report = new Report(request.getTitle(), request.getDescription(), request.getLocation());
         if(request.getImage() != null){
             report.setImage(uploadImgToImgur(request.getImage()));
@@ -44,14 +44,14 @@ public class ReportService implements IReportService{
         return report;
     }
 
-    private String uploadImgToImgur(MultipartFile image) throws IOException, FailedToLoadImageException {
+    private String uploadImgToImgur(String image) throws FailedToLoadImageException {
         RestTemplate restTemplate = new RestTemplate();
         String url= "https://api.imgbb.com/1/upload?key="+ clientIdImgbb;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
-        map.add("image", Base64.getEncoder().encodeToString(image.getBytes()));
+        map.add("image", image);
         map.add("key", clientIdImgbb);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
@@ -60,7 +60,6 @@ public class ReportService implements IReportService{
             return result.getBody().getData().getUrl();
         } else {
             throw new FailedToLoadImageException();
-
         }
     }
 
