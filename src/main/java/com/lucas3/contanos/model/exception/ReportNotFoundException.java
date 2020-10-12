@@ -1,6 +1,6 @@
 package com.lucas3.contanos.model.exception;
 
-public class ReportNotFoundException extends Throwable {
+public class ReportNotFoundException extends Exception{
 
     private String message;
 

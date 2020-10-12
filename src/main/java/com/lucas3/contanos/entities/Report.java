@@ -14,6 +14,7 @@ public class Report {
     private String title;
     private String description;
     private String location;
+    private String image;
 
     public Report() {}
 
@@ -53,5 +54,13 @@ public class Report {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

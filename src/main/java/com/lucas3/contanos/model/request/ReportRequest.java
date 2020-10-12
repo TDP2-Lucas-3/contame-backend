@@ -1,16 +1,20 @@
 package com.lucas3.contanos.model.request;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class ReportRequest {
 
     private String title;
     private String description;
     private String location;
+    private MultipartFile image;
 
 
-    public ReportRequest(String title, String description, String location) {
+    public ReportRequest(String title, String description, String location, MultipartFile image) {
         this.title = title;
         this.description = description;
         this.location = location;
+        this.image = image;
     }
 
     public String getDescription() {
@@ -35,5 +39,13 @@ public class ReportRequest {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public MultipartFile getImage() {
+        return image;
+    }
+
+    public void setImage(MultipartFile image) {
+        this.image = image;
     }
 }
