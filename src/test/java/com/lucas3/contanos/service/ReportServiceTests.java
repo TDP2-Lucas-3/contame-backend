@@ -1,6 +1,7 @@
 package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.Report;
+import com.lucas3.contanos.model.exception.FailedToLoadImageException;
 import com.lucas3.contanos.model.request.ReportRequest;
 import com.lucas3.contanos.model.exception.ReportNotFoundException;
 import org.junit.Assert;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.io.IOException;
 import java.util.List;
 
 // Test del servicio de reportes
@@ -21,8 +23,8 @@ public class ReportServiceTests {
     private ReportService reportService;
 
     @Test
-    public void createTest(){
-        ReportRequest request = new ReportRequest("Prueba", "Descripcion", "CABA");
+    public void createTest() throws IOException, FailedToLoadImageException {
+        ReportRequest request = new ReportRequest("Prueba", "Descripcion", "CABA", null);
         Report report = new Report("Prueba", "Descripcion", "CABA");
         report.setId(1L);
         Report report1 = reportService.createReport(request);
@@ -32,8 +34,8 @@ public class ReportServiceTests {
     }
 
     @Test
-    public void findAllTest(){
-        ReportRequest request = new ReportRequest("Prueba", "Descripcion", "CABA");
+    public void findAllTest() throws IOException, FailedToLoadImageException {
+        ReportRequest request = new ReportRequest("Prueba", "Descripcion", "CABA", null);
         Report report1 = reportService.createReport(request);
         Report report2 = reportService.createReport(request);
         Report report3 = reportService.createReport(request);
@@ -42,10 +44,10 @@ public class ReportServiceTests {
     }
 
     @Test
-    public void findByIdTest(){
+    public void findByIdTest() throws IOException, FailedToLoadImageException {
         Report result = null;
-        ReportRequest request = new ReportRequest("Prueba", "Descripcion", "CABA");
-        ReportRequest request3 = new ReportRequest("Prueba3", "Descripcion3", "CABA");
+        ReportRequest request = new ReportRequest("Prueba", "Descripcion", "CABA", null);
+        ReportRequest request3 = new ReportRequest("Prueba3", "Descripcion3", "CABA", null);
         Report report1 = reportService.createReport(request);
         Report report2 = reportService.createReport(request);
         Report report3 = reportService.createReport(request3);
