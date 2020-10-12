@@ -1,23 +1,26 @@
-package com.lucas3.contanos.model;
+package com.lucas3.contanos.model.response;
 
-import com.lucas3.contanos.entity.Report;
+import com.lucas3.contanos.entities.Report;
 
 public class ReportResponse {
 
     private Long id;
     private String title;
     private String description;
+    private String location;
 
-    public ReportResponse(Long id, String title, String description) {
+    public ReportResponse(Long id, String title, String description, String location) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.location = location;
     }
 
     public ReportResponse(Report report){
         this.id = report.getId();
         this.title = report.getTitle();
         this.description = report.getDescription();
+        this.location = report.getLocation();
     }
 
     public Long getId() {
@@ -42,5 +45,13 @@ public class ReportResponse {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

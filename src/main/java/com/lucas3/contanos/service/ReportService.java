@@ -1,7 +1,7 @@
 package com.lucas3.contanos.service;
 
-import com.lucas3.contanos.entity.Report;
-import com.lucas3.contanos.model.ReportRequest;
+import com.lucas3.contanos.entities.Report;
+import com.lucas3.contanos.model.request.ReportRequest;
 import com.lucas3.contanos.model.exception.ReportNotFoundException;
 import com.lucas3.contanos.repository.ReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class ReportService implements IReportService{
 
     @Override
     public Report createReport(ReportRequest request) {
-        Report report = new Report(request.getTitle(), request.getDescription());
+        Report report = new Report(request.getTitle(), request.getDescription(), request.getLocation());
         reportRepository.save(report);
         return report;
     }

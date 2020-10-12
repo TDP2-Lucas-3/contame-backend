@@ -1,8 +1,8 @@
 package com.lucas3.contanos.controller;
 
-import com.lucas3.contanos.entity.Report;
-import com.lucas3.contanos.model.ReportRequest;
-import com.lucas3.contanos.model.ReportResponse;
+import com.lucas3.contanos.entities.Report;
+import com.lucas3.contanos.model.request.ReportRequest;
+import com.lucas3.contanos.model.response.ReportResponse;
 import com.lucas3.contanos.model.exception.ReportNotFoundException;
 import com.lucas3.contanos.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;

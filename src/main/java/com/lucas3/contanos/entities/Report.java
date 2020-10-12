@@ -1,4 +1,4 @@
-package com.lucas3.contanos.entity;
+package com.lucas3.contanos.entities;
 
 
 import javax.persistence.*;
@@ -13,12 +13,14 @@ public class Report {
 
     private String title;
     private String description;
+    private String location;
 
     public Report() {}
 
-    public Report(String title, String description) {
+    public Report(String title, String description, String location) {
         this.title = title;
         this.description = description;
+        this.location = location;
     }
 
     public Long getId() {
@@ -43,5 +45,13 @@ public class Report {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }
