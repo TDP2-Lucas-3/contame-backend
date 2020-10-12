@@ -4,11 +4,13 @@ public class ReportRequest {
 
     private String title;
     private String description;
+    private String location;
 
 
-    public ReportRequest(String title, String description) {
+    public ReportRequest(String title, String description, String location) {
         this.title = title;
         this.description = description;
+        this.location = location;
     }
 
     public String getDescription() {
@@ -25,5 +27,13 @@ public class ReportRequest {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

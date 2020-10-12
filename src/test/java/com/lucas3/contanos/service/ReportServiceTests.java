@@ -22,8 +22,8 @@ public class ReportServiceTests {
 
     @Test
     public void createTest(){
-        ReportRequest request = new ReportRequest("Prueba", "Descripcion");
-        Report report = new Report("Prueba", "Descripcion");
+        ReportRequest request = new ReportRequest("Prueba", "Descripcion", "CABA");
+        Report report = new Report("Prueba", "Descripcion", "CABA");
         report.setId(1L);
         Report report1 = reportService.createReport(request);
         Assert.assertEquals(report.getTitle(),report1.getTitle());
@@ -33,7 +33,7 @@ public class ReportServiceTests {
 
     @Test
     public void findAllTest(){
-        ReportRequest request = new ReportRequest("Prueba", "Descripcion");
+        ReportRequest request = new ReportRequest("Prueba", "Descripcion", "CABA");
         Report report1 = reportService.createReport(request);
         Report report2 = reportService.createReport(request);
         Report report3 = reportService.createReport(request);
@@ -44,8 +44,8 @@ public class ReportServiceTests {
     @Test
     public void findByIdTest(){
         Report result = null;
-        ReportRequest request = new ReportRequest("Prueba", "Descripcion");
-        ReportRequest request3 = new ReportRequest("Prueba3", "Descripcion3");
+        ReportRequest request = new ReportRequest("Prueba", "Descripcion", "CABA");
+        ReportRequest request3 = new ReportRequest("Prueba3", "Descripcion3", "CABA");
         Report report1 = reportService.createReport(request);
         Report report2 = reportService.createReport(request);
         Report report3 = reportService.createReport(request3);

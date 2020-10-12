@@ -19,7 +19,7 @@ public class ReportService implements IReportService{
 
     @Override
     public Report createReport(ReportRequest request) {
-        Report report = new Report(request.getTitle(), request.getDescription());
+        Report report = new Report(request.getTitle(), request.getDescription(), request.getLocation());
         reportRepository.save(report);
         return report;
     }
