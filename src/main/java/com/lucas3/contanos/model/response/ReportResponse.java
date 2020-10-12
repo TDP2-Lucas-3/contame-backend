@@ -8,6 +8,7 @@ public class ReportResponse {
     private String title;
     private String description;
     private String location;
+    private String image;
 
     public ReportResponse(Long id, String title, String description, String location) {
         this.id = id;
@@ -21,6 +22,7 @@ public class ReportResponse {
         this.title = report.getTitle();
         this.description = report.getDescription();
         this.location = report.getLocation();
+        this.image = report.getImage();
     }
 
     public Long getId() {
@@ -53,5 +55,13 @@ public class ReportResponse {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }
