@@ -1,4 +1,4 @@
-package com.lucas3.contanos.model.response.imgur;
+package com.lucas3.contanos.model.response.imgbb;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
