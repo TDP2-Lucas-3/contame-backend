@@ -1,14 +1,14 @@
 package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.Category;
-import com.lucas3.contanos.entities.Report;
+import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
 import com.lucas3.contanos.model.request.CategoryRequest;
-import com.lucas3.contanos.model.request.ReportRequest;
-import com.lucas3.contanos.model.exception.ReportNotFoundException;
+import com.lucas3.contanos.model.request.IncidentRequest;
+import com.lucas3.contanos.model.exception.IncidentNotFoundException;
 import com.lucas3.contanos.model.response.imgbb.UploadImageResponse;
 import com.lucas3.contanos.repository.CategoryRepository;
-import com.lucas3.contanos.repository.ReportRepository;
+import com.lucas3.contanos.repository.IncidentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ReportService implements IReportService{
+public class IncidentService implements IIncidentService {
 
     @Autowired
-    private ReportRepository reportRepository;
+    private IncidentRepository incidentRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -38,20 +38,20 @@ public class ReportService implements IReportService{
 
 
     @Override
-    public Report createReport(ReportRequest request) throws FailedToLoadImageException {
+    public Incident createIncident(IncidentRequest request) throws FailedToLoadImageException {
         Category category = categoryRepository.findByName(request.getCategory().toUpperCase());
-        Report report = new Report(request.getTitle(),category,request.getDescription(), request.getLat(), request.getLon());
+        Incident incident = new Incident(request.getTitle(),category,request.getDescription(), request.getLat(), request.getLon());
 
         List<String> imagesURLs = new ArrayList<>();
         if(request.getImages() != null){
             for (String imageBase64:request.getImages()) {
                 imagesURLs.add(uploadImgToImgbb(imageBase64));
             }
-            report.setImages(imagesURLs);
+            incident.setImages(imagesURLs);
         }
 
-        reportRepository.save(report);
-        return report;
+        incidentRepository.save(incident);
+        return incident;
     }
 
     private String uploadImgToImgbb(String image) throws FailedToLoadImageException {
@@ -74,17 +74,17 @@ public class ReportService implements IReportService{
     }
 
     @Override
-    public List<Report> getAllReports() {
-        return reportRepository.findAll();
+    public List<Incident> getAllIncidents() {
+        return incidentRepository.findAll();
     }
 
     @Override
-    public Report getReportById(Long id) throws ReportNotFoundException {
-        Optional<Report> report = reportRepository.findById(id);
-        if(report.isPresent()){
-            return report.get();
+    public Incident getIncidentById(Long id) throws IncidentNotFoundException {
+        Optional<Incident> incident = incidentRepository.findById(id);
+        if(incident.isPresent()){
+            return incident.get();
         }
-        throw new ReportNotFoundException("Reporte inexistente");
+        throw new IncidentNotFoundException("Reporte inexistente");
     }
 
     @Override

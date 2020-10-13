@@ -1,10 +1,10 @@
 package com.lucas3.contanos.controller.handler;
 
-public class ReportNotFoundResponse {
+public class IncidentNotFoundResponse {
 
     private String message;
 
-    public ReportNotFoundResponse(String message) {
+    public IncidentNotFoundResponse(String message) {
         this.message = message;
     }
 

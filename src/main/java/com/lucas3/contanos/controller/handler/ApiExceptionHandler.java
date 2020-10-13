@@ -1,6 +1,6 @@
 package com.lucas3.contanos.controller.handler;
 
-import com.lucas3.contanos.model.exception.ReportNotFoundException;
+import com.lucas3.contanos.model.exception.IncidentNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class ApiExceptionHandler {
 
-    @ExceptionHandler(value = {ReportNotFoundException.class})
-    public ResponseEntity<Object> handleApiRequestException(ReportNotFoundException e) {
+    @ExceptionHandler(value = {IncidentNotFoundException.class})
+    public ResponseEntity<Object> handleApiRequestException(IncidentNotFoundException e) {
 
-        return new ResponseEntity<>(new ReportNotFoundResponse(e.getMessage()), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new IncidentNotFoundResponse(e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
 }

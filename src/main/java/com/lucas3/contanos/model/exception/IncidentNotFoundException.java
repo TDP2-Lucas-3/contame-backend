@@ -1,10 +1,10 @@
 package com.lucas3.contanos.model.exception;
 
-public class ReportNotFoundException extends Exception{
+public class IncidentNotFoundException extends Exception{
 
     private String message;
 
-    public ReportNotFoundException(String message) {
+    public IncidentNotFoundException(String message) {
         this.message= message;
     }
 
