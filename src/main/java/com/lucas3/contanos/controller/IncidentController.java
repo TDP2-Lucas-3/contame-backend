@@ -1,58 +1,58 @@
 package com.lucas3.contanos.controller;
 
 import com.lucas3.contanos.entities.Category;
-import com.lucas3.contanos.entities.Report;
+import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.InvalidCategoryException;
-import com.lucas3.contanos.model.exception.InvalidReportException;
+import com.lucas3.contanos.model.exception.InvalidIncidentException;
 import com.lucas3.contanos.model.request.CategoryRequest;
-import com.lucas3.contanos.model.request.ReportRequest;
+import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.response.StandResponse;
-import com.lucas3.contanos.service.ReportService;
+import com.lucas3.contanos.service.IncidentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", methods= {RequestMethod.GET,RequestMethod.POST})
-@RequestMapping("/report")
-public class ReportController {
+@RequestMapping("/incident")
+public class IncidentController {
 
     @Autowired
-    private ReportService reportService;
+    private IncidentService incidentService;
 
     @PostMapping(value= "")
-    public ResponseEntity<?> createReport(@RequestBody ReportRequest request) {
-        Report response = null;
+    public ResponseEntity<?> createIncident(@RequestBody IncidentRequest request) {
+        Incident response = null;
         try{
-            validateReport(request);
-            response = reportService.createReport(request);
+            validateIncident(request);
+            response = incidentService.createIncident(request);
         }catch(Exception e){
             return ResponseEntity
                     .badRequest()
-                    .body(new StandResponse("Hubo un error creando tu reporte, Por favor intenta devuelta en unos minutos"));
+                    .body(new StandResponse("Hubo un error creando tu incidente, Por favor intenta devuelta en unos minutos"));
         }
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("")
-    public List<Report> getReports(){
-       return reportService.getAllReports();
+    public List<Incident> getIncidents(){
+       return incidentService.getAllIncidents();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?>  getReportById(@PathVariable Long id)  {
+    public ResponseEntity<?>  getIncidentById(@PathVariable Long id)  {
         try{
-            return ResponseEntity.ok(reportService.getReportById(id));
+            return ResponseEntity.ok(incidentService.getIncidentById(id));
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(new StandResponse("El reporte solicitado no existe"));
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         }
     }
     @GetMapping("/categories")
     public List<Category> getCategories(){
-        return reportService.getCategories();
+        return incidentService.getCategories();
     }
 
     @PostMapping("/categories")
@@ -60,7 +60,7 @@ public class ReportController {
         Category category = null;
         try{
             validateCategory(categoryRequest);
-            category = reportService.createCategory(categoryRequest);
+            category = incidentService.createCategory(categoryRequest);
             return ResponseEntity.ok(category);
         }catch(Exception e){
             return ResponseEntity.badRequest().body(new StandResponse("No se pudo crear la categoria"));
@@ -72,9 +72,9 @@ public class ReportController {
         if(request.getDescription() == null || StringUtils.isEmpty(request.getDescription())) throw new InvalidCategoryException();
     }
 
-    private void validateReport(ReportRequest request) throws InvalidReportException {
-        if(request.getTitle() == null || StringUtils.isEmpty(request.getTitle())) throw new InvalidReportException();
-        if(request.getCategory() == null || StringUtils.isEmpty(request.getCategory())) throw new InvalidReportException();
+    private void validateIncident(IncidentRequest request) throws InvalidIncidentException {
+        if(request.getTitle() == null || StringUtils.isEmpty(request.getTitle())) throw new InvalidIncidentException();
+        if(request.getCategory() == null || StringUtils.isEmpty(request.getCategory())) throw new InvalidIncidentException();
     }
 
 
