@@ -1,10 +1,13 @@
 package com.lucas3.contanos.service;
 
+import com.lucas3.contanos.entities.Category;
 import com.lucas3.contanos.entities.Report;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
+import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.ReportRequest;
 import com.lucas3.contanos.model.exception.ReportNotFoundException;
 import com.lucas3.contanos.model.response.imgbb.UploadImageResponse;
+import com.lucas3.contanos.repository.CategoryRepository;
 import com.lucas3.contanos.repository.ReportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,10 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Base64;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,22 +30,31 @@ public class ReportService implements IReportService{
     @Autowired
     private ReportRepository reportRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Value("${contame.app.imgbb.client}")
     private String clientIdImgbb;
 
 
     @Override
     public Report createReport(ReportRequest request) throws FailedToLoadImageException {
-        Report report = new Report(request.getTitle(), request.getDescription(), request.getLocation());
-        if(request.getImage() != null){
-            report.setImage(uploadImgToImgur(request.getImage()));
+        Category category = categoryRepository.findByName(request.getCategory().toUpperCase());
+        Report report = new Report(request.getTitle(),category,request.getDescription(), request.getLat(), request.getLon());
+
+        List<String> imagesURLs = new ArrayList<>();
+        if(request.getImages() != null){
+            for (String imageBase64:request.getImages()) {
+                imagesURLs.add(uploadImgToImgbb(imageBase64));
+            }
+            report.setImages(imagesURLs);
         }
 
         reportRepository.save(report);
         return report;
     }
 
-    private String uploadImgToImgur(String image) throws FailedToLoadImageException {
+    private String uploadImgToImgbb(String image) throws FailedToLoadImageException {
         RestTemplate restTemplate = new RestTemplate();
         String url= "https://api.imgbb.com/1/upload?key="+ clientIdImgbb;
 
@@ -77,6 +87,15 @@ public class ReportService implements IReportService{
         throw new ReportNotFoundException("Reporte inexistente");
     }
 
+    @Override
+    public List<Category> getCategories() {
+        return categoryRepository.findAll();
+    }
+
+    @Override
+    public Category createCategory(CategoryRequest request) {
+        return categoryRepository.save(new Category(request));
+    }
 
 
 }

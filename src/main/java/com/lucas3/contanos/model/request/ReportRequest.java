@@ -1,20 +1,35 @@
 package com.lucas3.contanos.model.request;
 
-import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class ReportRequest {
 
     private String title;
     private String description;
-    private String location;
-    private String image;
+    private double lat;
+    private double lon;
+    private List<String> images;
+    private String category;
 
+    public ReportRequest() {
+    }
 
-    public ReportRequest(String title, String description, String location, String image) {
+    public ReportRequest(String title, String description, double lat, double lon, List<String> images, String category) {
         this.title = title;
         this.description = description;
-        this.location = location;
-        this.image = image;
+        this.lat = lat;
+        this.lon = lon;
+        this.images = images;
+        this.category = category;
+
+    }
+
+    public ReportRequest(String title, String category) {
+        this.title = title;
+        this.category = category;
+
     }
 
     public String getDescription() {
@@ -33,19 +48,35 @@ public class ReportRequest {
         this.title = title;
     }
 
-    public String getLocation() {
-        return location;
+    public double getLat() {
+        return lat;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setLat(double lat) {
+        this.lat = lat;
     }
 
-    public String getImage() {
-        return image;
+    public double getLon() {
+        return lon;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setLon(double lon) {
+        this.lon = lon;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }
