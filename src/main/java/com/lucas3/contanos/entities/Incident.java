@@ -7,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Table(name ="reports")
-public class Report {
+public class Incident {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,16 +32,16 @@ public class Report {
 
     private Date completeDate;
 
-    public Report() {}
+    public Incident() {}
 
-    public Report(String title, Category category){
+    public Incident(String title, Category category){
         this.title = title;
         this.category = category;
         this.creationDate = new Date();
         this.updateDate = new Date();
     }
 
-    public Report(String title, Category category,String description, double lat, double lon){
+    public Incident(String title, Category category, String description, double lat, double lon){
         this.title = title;
         this.category = category;
         this.description = description;

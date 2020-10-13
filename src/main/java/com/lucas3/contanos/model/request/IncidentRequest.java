@@ -4,7 +4,7 @@ package com.lucas3.contanos.model.request;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class ReportRequest {
+public class IncidentRequest {
 
     private String title;
     private String description;
@@ -13,10 +13,10 @@ public class ReportRequest {
     private List<String> images;
     private String category;
 
-    public ReportRequest() {
+    public IncidentRequest() {
     }
 
-    public ReportRequest(String title, String description, double lat, double lon, List<String> images, String category) {
+    public IncidentRequest(String title, String description, double lat, double lon, List<String> images, String category) {
         this.title = title;
         this.description = description;
         this.lat = lat;
@@ -26,7 +26,7 @@ public class ReportRequest {
 
     }
 
-    public ReportRequest(String title, String category) {
+    public IncidentRequest(String title, String category) {
         this.title = title;
         this.category = category;
 
