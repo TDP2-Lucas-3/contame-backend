@@ -28,7 +28,7 @@ public class IncidentServiceTests {
     @Test
     public void createTest() throws IOException, FailedToLoadImageException {
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
-        IncidentRequest request = new IncidentRequest("Prueba", "ROBO");
+        IncidentRequest request = new IncidentRequest("Prueba", 1L);
         Incident incident = new Incident("Prueba", category);
         incident.setId(1L);
         Incident incident1 = incidentService.createIncident(request);
@@ -40,7 +40,7 @@ public class IncidentServiceTests {
     @Test
     public void findAllTest() throws IOException, FailedToLoadImageException {
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
-        IncidentRequest request = new IncidentRequest("Prueba", "ROBO");
+        IncidentRequest request = new IncidentRequest("Prueba", 1L);
         Incident incident1 = incidentService.createIncident(request);
         Incident incident2 = incidentService.createIncident(request);
         Incident incident3 = incidentService.createIncident(request);
@@ -52,8 +52,8 @@ public class IncidentServiceTests {
     public void findByIdTest() throws IOException, FailedToLoadImageException {
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
         Incident result = null;
-        IncidentRequest request = new IncidentRequest("Prueba", "ROBO");
-        IncidentRequest request3 = new IncidentRequest("Prueba3", "ROBO");
+        IncidentRequest request = new IncidentRequest("Prueba", 1L);
+        IncidentRequest request3 = new IncidentRequest("Prueba3", 1L);
         Incident incident1 = incidentService.createIncident(request);
         Incident incident2 = incidentService.createIncident(request);
         Incident incident3 = incidentService.createIncident(request3);
@@ -63,7 +63,7 @@ public class IncidentServiceTests {
             e.printStackTrace();
         }
         Assert.assertEquals(request3.getTitle(), result.getTitle());
-        Assert.assertEquals(request3.getCategory() , result.getCategory().getName());
+        Assert.assertEquals(request3.getCategory() , result.getCategory().getId());
     }
 
     @Test
