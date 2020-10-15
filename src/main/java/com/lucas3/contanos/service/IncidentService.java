@@ -39,8 +39,9 @@ public class IncidentService implements IIncidentService {
 
     @Override
     public Incident createIncident(IncidentRequest request) throws FailedToLoadImageException {
-        Category category = categoryRepository.findByName(request.getCategory().toUpperCase());
-        Incident incident = new Incident(request.getTitle(),category,request.getDescription(), request.getLat(), request.getLon());
+        Optional<Category> category = categoryRepository.findById(request.getCategory());
+
+        Incident incident = new Incident(request.getTitle(),category.get(),request.getDescription(), request.getLat(), request.getLon());
 
         List<String> imagesURLs = new ArrayList<>();
         if(request.getImages() != null){
