@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name ="reports")
+@Table(name ="incidents")
 public class Incident {
 
     @Id
