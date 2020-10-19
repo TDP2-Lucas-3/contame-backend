@@ -2,9 +2,12 @@ package com.lucas3.contanos.model.request;
 
 public class RegisterRequest {
 
+    private String name;
+    private String surname;
     private String username;
     private String email;
     private String password;
+    private String photo;
 
     public RegisterRequest() {
     }
@@ -37,5 +40,29 @@ public class RegisterRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 }
