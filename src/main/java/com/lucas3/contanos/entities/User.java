@@ -28,7 +28,6 @@ public class User {
     @Email
     private String email;
 
-    @NotBlank
     @Size(max = 120)
     private String password;
 
@@ -45,6 +44,10 @@ public class User {
         this.email = email;
         this.password = password;
 
+    }
+
+    public User(@Email String email) {
+        this.email = email;
     }
 
     public String getPassword() {
