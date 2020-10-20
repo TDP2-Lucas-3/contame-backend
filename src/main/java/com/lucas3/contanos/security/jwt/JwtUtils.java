@@ -1,5 +1,6 @@
 package com.lucas3.contanos.security.jwt;
 
+import com.lucas3.contanos.entities.User;
 import com.lucas3.contanos.security.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
@@ -26,6 +27,16 @@ public class JwtUtils {
 
         return Jwts.builder()
                 .setSubject((userPrincipal.getUsername()))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + (jwtExpirationMs*60*1000)))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
+    }
+
+    public String generateJwtTokenGoogle(User user) {
+
+        return Jwts.builder()
+                .setSubject((user.getEmail()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + (jwtExpirationMs*60*1000)))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)

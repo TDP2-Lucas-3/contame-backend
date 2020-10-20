@@ -1,9 +1,8 @@
 package com.lucas3.contanos.controller;
 
-import com.lucas3.contanos.model.exception.InvalidCategoryException;
 import com.lucas3.contanos.model.exception.InvalidLoginException;
 import com.lucas3.contanos.model.exception.InvalidRegisterException;
-import com.lucas3.contanos.model.request.CategoryRequest;
+import com.lucas3.contanos.model.request.LoginGoogleRequest;
 import com.lucas3.contanos.model.request.RegisterRequest;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.model.request.LoginRequest;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin(origins = "*", methods= {RequestMethod.GET,RequestMethod.POST})
-@RequestMapping("/auth")
+@RequestMapping("")
 public class AuthController {
 
     @Autowired
@@ -40,8 +39,16 @@ public class AuthController {
         }catch(Exception e){
             return ResponseEntity.badRequest().body(new StandResponse("Las credenciales son invalidas"));
         }
+    }
 
-
+    @PostMapping("/login/google")
+    public ResponseEntity<?>login(@RequestBody LoginGoogleRequest request){
+        try{
+            validateLoginGoogle(request);
+            return userService.authenticateUserWithGoogle(request);
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Las credenciales son invalidas"));
+        }
     }
 
     private void validateRegister(RegisterRequest request) throws InvalidRegisterException {
@@ -52,6 +59,10 @@ public class AuthController {
     private void validateLogin(LoginRequest request) throws InvalidLoginException {
         if(request.getEmail() == null || StringUtils.isEmpty(request.getEmail())) throw new InvalidLoginException();
         if(request.getPassword() == null || StringUtils.isEmpty(request.getPassword())) throw new InvalidLoginException();
+    }
+
+    private void validateLoginGoogle(LoginGoogleRequest request) throws InvalidLoginException {
+        if(request.getToken() == null || StringUtils.isEmpty(request.getToken())) throw new InvalidLoginException();
     }
 
 
