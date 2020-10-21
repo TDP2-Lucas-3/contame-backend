@@ -7,17 +7,17 @@ public class LoginResponse {
     private String token;
     private Long id;
     private String email;
-    private List<String> roles;
+    private String rol;
 
     public LoginResponse() {
     }
 
-    public LoginResponse(String token, Long id, String email, List<String> roles) {
+    public LoginResponse(String token, Long id, String email, String rol) {
         this.token = token;
         this.id = id;
 
         this.email = email;
-        this.roles = roles;
+        this.rol = rol;
     }
 
     public String getToken() {
@@ -44,11 +44,11 @@ public class LoginResponse {
         this.email = email;
     }
 
-    public List<String> getRoles() {
-        return roles;
+    public String getRol() {
+        return rol;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public void setRol(String rol) {
+        this.rol = rol;
     }
 }

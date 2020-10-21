@@ -32,14 +32,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 @Service
 public class UserService implements IUserService{
@@ -74,15 +73,12 @@ public class UserService implements IUserService{
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+        Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
 
         return ResponseEntity.ok(new LoginResponse(jwt,
-                userDetails.getId(),
-                userDetails.getEmail(),
-                roles));
+                user.get().getId(),
+                user.get().getEmail(),
+                user.get().getRol().toString()));
     }
 
     @Override
@@ -141,7 +137,7 @@ public class UserService implements IUserService{
 
     @Override
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAllByRol(ERole.ROLE_USER);
     }
 
     @Override
@@ -176,7 +172,7 @@ public class UserService implements IUserService{
         Profile profile = new Profile(user, signUpRequest.getName(), signUpRequest.getSurname(),base64photo);
         profileRepository.save(profile);
         user.setProfile(profile);
-        user.setRol(ERole.ROLE_USER);
+        user.setRol(ERole.ROLE_ADMIN);
 
         return ResponseEntity.ok(new StandResponse("User registered successfully!"));
     }
