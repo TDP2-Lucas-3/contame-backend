@@ -26,6 +26,11 @@ public class Incident {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Category category;
 
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    private User user;
+
+
+
     private Date creationDate;
 
     private Date updateDate;
@@ -131,5 +136,13 @@ public class Incident {
 
     public void setCompleteDate(Date completeDate) {
         this.completeDate = completeDate;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

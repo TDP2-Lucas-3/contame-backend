@@ -8,13 +8,12 @@ import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.exception.IncidentNotFoundException;
 import com.lucas3.contanos.repository.CategoryRepository;
 import com.lucas3.contanos.repository.IncidentRepository;
+import com.lucas3.contanos.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class IncidentService implements IIncidentService {
@@ -26,11 +25,14 @@ public class IncidentService implements IIncidentService {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private ImgbbService imgbbService;
 
 
     @Override
-    public Incident createIncident(IncidentRequest request) throws FailedToLoadImageException {
+    public Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException {
         Optional<Category> category = categoryRepository.findById(request.getCategory());
 
         Incident incident = new Incident(request.getTitle(),category.get(),request.getDescription(), request.getLat(), request.getLon());
@@ -42,6 +44,7 @@ public class IncidentService implements IIncidentService {
             }
             incident.setImages(imagesURLs);
         }
+        incident.setUser(userRepository.findByEmail(email).get());
         incidentRepository.save(incident);
         return incident;
     }
@@ -62,7 +65,9 @@ public class IncidentService implements IIncidentService {
 
     @Override
     public List<Category> getCategories() {
-        return categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAll() ;
+        Collections.sort(categories, Comparator.comparing(Category::getName));
+        return categories;
     }
 
     @Override
