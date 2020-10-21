@@ -4,6 +4,9 @@ public class LoginGoogleRequest {
 
     private String token;
 
+    public LoginGoogleRequest() {
+    }
+
     public LoginGoogleRequest(String token) {
         this.token = token;
     }
