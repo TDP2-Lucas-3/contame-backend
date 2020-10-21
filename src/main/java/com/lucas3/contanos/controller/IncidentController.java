@@ -7,6 +7,7 @@ import com.lucas3.contanos.model.exception.InvalidIncidentException;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.response.StandResponse;
+import com.lucas3.contanos.security.jwt.JwtUtils;
 import com.lucas3.contanos.service.IncidentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +24,18 @@ public class IncidentController {
     @Autowired
     private IncidentService incidentService;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     @PostMapping(value= "")
-    public ResponseEntity<?> createIncident(@RequestBody IncidentRequest request) {
+    public ResponseEntity<?> createIncident(@RequestHeader("Authorization") String fullToken,@RequestBody IncidentRequest request) {
         Incident response = null;
         try{
             validateIncident(request);
-            response = incidentService.createIncident(request);
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            response = incidentService.createIncident(request, email);
         }catch(Exception e){
+            e.printStackTrace();
             return ResponseEntity
                     .badRequest()
                     .body(new StandResponse("Hubo un error creando tu incidente, Por favor intenta devuelta en unos minutos"));

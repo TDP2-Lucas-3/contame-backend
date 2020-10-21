@@ -20,7 +20,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("")
-    public List<UserResponse> getIncidents(){
+    public List<UserResponse> getUsers(){
         List<UserResponse> response = new ArrayList<>();
         List<User> users = userService.getAllUsers();
         for (User user: users) {
@@ -30,7 +30,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getIncidentById(@PathVariable Long id)  {
+    public ResponseEntity<?> getUserById(@PathVariable Long id)  {
         try{
             return ResponseEntity.ok(new UserResponse(userService.getUserById(id)));
         }catch (Exception e){

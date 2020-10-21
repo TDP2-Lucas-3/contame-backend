@@ -33,6 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
@@ -153,6 +154,7 @@ public class UserService implements IUserService{
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> registerUser(RegisterRequest signUpRequest) throws FailedToLoadImageException {
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
@@ -169,12 +171,12 @@ public class UserService implements IUserService{
         // Create new user's account
         User user = new User(signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
+        userRepository.save(user);
 
         Profile profile = new Profile(user, signUpRequest.getName(), signUpRequest.getSurname(),base64photo);
         profileRepository.save(profile);
         user.setProfile(profile);
         user.setRol(ERole.ROLE_USER);
-        userRepository.save(user);
 
         return ResponseEntity.ok(new StandResponse("User registered successfully!"));
     }

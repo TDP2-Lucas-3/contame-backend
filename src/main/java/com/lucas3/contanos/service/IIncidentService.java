@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface IIncidentService {
 
-    Incident createIncident(IncidentRequest request) throws FailedToLoadImageException;
+    Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException;
 
     List<Incident> getAllIncidents();
 

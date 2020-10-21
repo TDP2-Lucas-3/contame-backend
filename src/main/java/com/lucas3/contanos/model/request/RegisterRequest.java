@@ -18,6 +18,11 @@ public class RegisterRequest {
         this.password = password;
     }
 
+    public RegisterRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
     public String getUsername() {
         return username;
     }
