@@ -11,7 +11,9 @@ import com.lucas3.contanos.entities.Profile;
 import com.lucas3.contanos.entities.User;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
 import com.lucas3.contanos.model.exception.InvalidLoginException;
+import com.lucas3.contanos.model.exception.UserNotFoundException;
 import com.lucas3.contanos.model.request.LoginGoogleRequest;
+import com.lucas3.contanos.model.request.UpdateUserRequest;
 import com.lucas3.contanos.model.response.LoginGoogleResponse;
 import com.lucas3.contanos.model.response.LoginResponse;
 import com.lucas3.contanos.model.request.RegisterRequest;
@@ -20,7 +22,6 @@ import com.lucas3.contanos.model.request.LoginRequest;
 import com.lucas3.contanos.repository.ProfileRepository;
 import com.lucas3.contanos.repository.UserRepository;
 import com.lucas3.contanos.security.jwt.JwtUtils;
-import com.lucas3.contanos.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -147,6 +148,22 @@ public class UserService implements IUserService{
             return user.get();
         }
         throw new UsernameNotFoundException("El usuario no existe");
+    }
+
+    @Override
+    @Transactional
+    public User updateUserProfile(UpdateUserRequest request) throws FailedToLoadImageException, UserNotFoundException {
+        Optional<User> user = userRepository.findById(request.getId());
+
+        if(user.isPresent()){
+            user.get().getProfile().setName(request.getName());
+            user.get().getProfile().setSurename(request.getSurname());
+            if( request.getPhoto() != null && !request.getPhoto().isEmpty()){
+                user.get().getProfile().setPhoto(imgbbService.uploadImgToImgbb(request.getPhoto()));
+            }
+            return user.get();
+        }
+        throw new UserNotFoundException();
     }
 
     @Override

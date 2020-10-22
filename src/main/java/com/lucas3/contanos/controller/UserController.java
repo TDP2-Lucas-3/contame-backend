@@ -1,6 +1,7 @@
 package com.lucas3.contanos.controller;
 
 import com.lucas3.contanos.entities.User;
+import com.lucas3.contanos.model.request.UpdateUserRequest;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.model.response.UserResponse;
 import com.lucas3.contanos.service.UserService;
@@ -36,5 +37,15 @@ public class UserController {
         }catch (Exception e){
             return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
         }
+    }
+
+    @PutMapping("")
+    public ResponseEntity<?> updateUser(@RequestBody UpdateUserRequest update){
+        try{
+            return ResponseEntity.ok(new UserResponse(userService.updateUserProfile(update)));
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("No se pudo actualizar el perfil del usuario"));
+        }
+
     }
 }
