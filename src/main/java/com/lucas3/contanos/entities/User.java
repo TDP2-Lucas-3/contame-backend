@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Date;
 
 
 @Entity
@@ -36,8 +37,10 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL)
     private Profile profile;
 
-
     private ERole rol ;
+
+    private Date registerDate;
+    private Date lastLoginDate;
 
     public User() {
     }
@@ -91,5 +94,21 @@ public class User {
 
     public void setProfile(Profile profile) {
         this.profile = profile;
+    }
+
+    public Date getRegisterDate() {
+        return registerDate;
+    }
+
+    public void setRegisterDate(Date registerDate) {
+        this.registerDate = registerDate;
+    }
+
+    public Date getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(Date lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 }

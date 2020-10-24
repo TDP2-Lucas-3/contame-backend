@@ -1,6 +1,5 @@
 package com.lucas3.contanos.controller;
 
-import com.lucas3.contanos.entities.User;
 import com.lucas3.contanos.model.request.UpdateUserRequest;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.model.response.UserResponse;
@@ -9,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,12 +20,7 @@ public class UserController {
 
     @GetMapping("")
     public List<UserResponse> getUsers(){
-        List<UserResponse> response = new ArrayList<>();
-        List<User> users = userService.getAllUsers();
-        for (User user: users) {
-            response.add(new UserResponse(user));
-        }
-        return response;
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
