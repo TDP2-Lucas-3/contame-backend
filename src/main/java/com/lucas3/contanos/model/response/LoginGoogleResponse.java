@@ -2,20 +2,16 @@ package com.lucas3.contanos.model.response;
 
 import java.util.List;
 
-public class LoginResponse {
+public class LoginGoogleResponse {
 
     private String token;
     private Long id;
     private String email;
     private String rol;
 
-    public LoginResponse() {
-    }
-
-    public LoginResponse(String token, Long id, String email, String rol) {
+    public LoginGoogleResponse(String token, Long id, String email, String rol) {
         this.token = token;
         this.id = id;
-
         this.email = email;
         this.rol = rol;
     }
