@@ -19,6 +19,8 @@ import com.lucas3.contanos.model.response.LoginResponse;
 import com.lucas3.contanos.model.request.RegisterRequest;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.model.request.LoginRequest;
+import com.lucas3.contanos.model.response.UserResponse;
+import com.lucas3.contanos.repository.IncidentRepository;
 import com.lucas3.contanos.repository.ProfileRepository;
 import com.lucas3.contanos.repository.UserRepository;
 import com.lucas3.contanos.security.jwt.JwtUtils;
@@ -36,9 +38,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -49,6 +49,9 @@ public class UserService implements IUserService{
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private IncidentRepository incidentRepository;
 
     @Autowired
     private ProfileRepository profileRepository;
@@ -83,8 +86,8 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public ResponseEntity<?> authenticateUserWithGoogle(LoginGoogleRequest request) throws GeneralSecurityException, IOException, InvalidLoginException {
-        User user = authenticateWithGoogle(request.getToken());
+    public ResponseEntity<?> authenticateUserWithGoogle(LoginGoogleRequest request) throws GeneralSecurityException, IOException, InvalidLoginException, FailedToLoadImageException {
+        User user = authenticateWithGoogle(request);
 
         String jwt = jwtUtils.generateJwtTokenGoogle(user);
 
@@ -94,40 +97,39 @@ public class UserService implements IUserService{
                 user.getRol().toString()));
     }
 
-    private User authenticateWithGoogle(String token) throws GeneralSecurityException, IOException, InvalidLoginException {
+    private User authenticateWithGoogle(LoginGoogleRequest request) throws GeneralSecurityException, IOException, InvalidLoginException, FailedToLoadImageException {
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance())
-                // Specify the CLIENT_ID of the app that accesses the backend:
                 .setAudience(Collections.singletonList(CLIENT_ID_GOOGLE))
-                // Or, if multiple clients access the backend:
-                //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
                 .build();
 
-        GoogleIdToken idToken = verifier.verify(token);
+        GoogleIdToken idToken = verifier.verify(request.getToken());
         if (idToken != null) {
             Payload payload = idToken.getPayload();
-            // Get profile information from payload
             String email = payload.getEmail();
-            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
 
             Optional<User> user = userRepository.findByEmail(email);
 
             if(user.isPresent()){
+                user.get().setLastLoginDate(new Date());
+                userRepository.save(user.get());
                 return user.get();
             }else{
+                String photoUrl= "";
                 User newUser = new User(email);
 
-                String name = (String) payload.get("name");
-                String pictureUrl = (String) payload.get("picture");
-                String locale = (String) payload.get("locale");
-                String familyName = (String) payload.get("family_name");
-                String givenName = (String) payload.get("given_name");
+                if(request.getPhoto()!= null && !request.getPhoto().isEmpty()){
+                    photoUrl = imgbbService.uploadImgToImgbb(request.getPhoto());
+                }else{
+                    photoUrl = (String) payload.get("picture");
+                }
 
-
-                Profile newProfile = new Profile(newUser, name, familyName,pictureUrl);
+                Profile newProfile = new Profile(newUser, request.getName(), request.getSurname(),photoUrl);
                 profileRepository.save(newProfile);
                 newUser.setProfile(newProfile);
                 newUser.setRol(ERole.ROLE_USER);
+                newUser.setRegisterDate(new Date());
+                newUser.setLastLoginDate(new Date());
                 userRepository.save(newUser);
                 return newUser;
             }
@@ -137,8 +139,16 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAllByRol(ERole.ROLE_USER);
+    public List<UserResponse> getAllUsers() {
+        List<UserResponse> response = new ArrayList<>();
+        List<User> users =  userRepository.findAllByRol(ERole.ROLE_USER);
+        for (User user: users) {
+            UserResponse userResponse = new UserResponse(user);
+            userResponse.setIncidentCount(incidentRepository.countByUser(user));
+        }
+        return response;
+
+
     }
 
     @Override

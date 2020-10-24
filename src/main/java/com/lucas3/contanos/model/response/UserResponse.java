@@ -2,6 +2,7 @@ package com.lucas3.contanos.model.response;
 
 import com.lucas3.contanos.entities.User;
 
+import java.util.Date;
 import java.util.List;
 
 public class UserResponse {
@@ -12,6 +13,9 @@ public class UserResponse {
     private String name;
     private String surname;
     private String photo;
+    private Date registerDate;
+    private Date lastLoginDate;
+    private Integer incidentCount;
 
     public UserResponse() {
     }
@@ -23,7 +27,8 @@ public class UserResponse {
         this.name = user.getProfile().getName();
         this.surname = user.getProfile().getSurename();
         this.photo = user.getProfile().getPhoto();
-
+        this.registerDate = user.getRegisterDate();
+        this.lastLoginDate = user.getLastLoginDate();
     }
 
     public Long getId() {
@@ -72,5 +77,29 @@ public class UserResponse {
 
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    public Date getRegisterDate() {
+        return registerDate;
+    }
+
+    public void setRegisterDate(Date registerDate) {
+        this.registerDate = registerDate;
+    }
+
+    public Date getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(Date lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
+    }
+
+    public Integer getIncidentCount() {
+        return incidentCount;
+    }
+
+    public void setIncidentCount(Integer incidentCount) {
+        this.incidentCount = incidentCount;
     }
 }
