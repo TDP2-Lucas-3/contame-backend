@@ -4,7 +4,12 @@ public class LoginGoogleRequest {
 
     private String token;
 
+
     public LoginGoogleRequest() {
+    }
+
+    public LoginGoogleRequest(String token, String name, String surname, String photo) {
+        this.token = token;
     }
 
     public LoginGoogleRequest(String token) {
@@ -18,4 +23,5 @@ public class LoginGoogleRequest {
     public void setToken(String token) {
         this.token = token;
     }
+
 }

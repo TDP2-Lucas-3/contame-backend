@@ -8,6 +8,7 @@ import com.lucas3.contanos.model.request.LoginGoogleRequest;
 import com.lucas3.contanos.model.request.LoginRequest;
 import com.lucas3.contanos.model.request.RegisterRequest;
 import com.lucas3.contanos.model.request.UpdateUserRequest;
+import com.lucas3.contanos.model.response.UserResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -21,12 +22,12 @@ public interface IUserService {
 
     ResponseEntity<?> authenticateUser(LoginRequest loginRequest);
 
-    ResponseEntity<?> authenticateUserWithGoogle(LoginGoogleRequest loginRequest) throws GeneralSecurityException, IOException, InvalidLoginException;
+    ResponseEntity<?> authenticateUserWithGoogle(LoginGoogleRequest loginRequest) throws GeneralSecurityException, IOException, InvalidLoginException, FailedToLoadImageException;
 
-    List<User> getAllUsers();
+    List<UserResponse> getAllUsers();
 
     User getUserById(Long id);
 
-    User updateUserProfile(UpdateUserRequest request) throws FailedToLoadImageException, UserNotFoundException;
+    User updateUserProfile(UpdateUserRequest request, String email) throws FailedToLoadImageException, UserNotFoundException;
 
 }

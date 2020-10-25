@@ -1,15 +1,16 @@
 package com.lucas3.contanos.controller;
 
-import com.lucas3.contanos.entities.User;
+import com.lucas3.contanos.model.exception.FailedToLoadImageException;
+import com.lucas3.contanos.model.exception.UserNotFoundException;
 import com.lucas3.contanos.model.request.UpdateUserRequest;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.model.response.UserResponse;
+import com.lucas3.contanos.security.jwt.JwtUtils;
 import com.lucas3.contanos.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,14 +21,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     @GetMapping("")
     public List<UserResponse> getUsers(){
-        List<UserResponse> response = new ArrayList<>();
-        List<User> users = userService.getAllUsers();
-        for (User user: users) {
-            response.add(new UserResponse(user));
-        }
-        return response;
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
@@ -40,11 +39,14 @@ public class UserController {
     }
 
     @PutMapping("")
-    public ResponseEntity<?> updateUser(@RequestBody UpdateUserRequest update){
+    public ResponseEntity<?> updateUser(@RequestHeader("Authorization") String fullToken, @RequestBody UpdateUserRequest update){
         try{
-            return ResponseEntity.ok(new UserResponse(userService.updateUserProfile(update)));
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body(new StandResponse("No se pudo actualizar el perfil del usuario"));
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(new UserResponse(userService.updateUserProfile(update, email)));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        } catch (FailedToLoadImageException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("Hubo un error actualizando tu foto de perfil"));
         }
 
     }

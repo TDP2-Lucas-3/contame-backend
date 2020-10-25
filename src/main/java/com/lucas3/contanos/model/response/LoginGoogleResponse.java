@@ -8,12 +8,14 @@ public class LoginGoogleResponse {
     private Long id;
     private String email;
     private String rol;
+    private boolean firstLogin;
 
-    public LoginGoogleResponse(String token, Long id, String email, String rol) {
+    public LoginGoogleResponse(String token, Long id, String email, String rol, boolean firstLogin) {
         this.token = token;
         this.id = id;
         this.email = email;
         this.rol = rol;
+        this.firstLogin = firstLogin;
     }
 
     public String getToken() {
@@ -46,5 +48,13 @@ public class LoginGoogleResponse {
 
     public void setRol(String rol) {
         this.rol = rol;
+    }
+
+    public boolean isFirstLogin() {
+        return firstLogin;
+    }
+
+    public void setFirstLogin(boolean firstLogin) {
+        this.firstLogin = firstLogin;
     }
 }

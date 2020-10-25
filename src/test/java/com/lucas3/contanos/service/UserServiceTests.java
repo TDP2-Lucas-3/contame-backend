@@ -10,6 +10,7 @@ import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.request.RegisterRequest;
 import com.lucas3.contanos.model.request.UpdateUserRequest;
+import com.lucas3.contanos.model.response.UserResponse;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class UserServiceTests {
     public void noBackofficeUsersTest() throws FailedToLoadImageException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
         userService.registerUser(register);
-        List<User> users = userService.getAllUsers();
+        List<UserResponse> users = userService.getAllUsers();
         Assert.assertTrue(users.isEmpty());
     }
 
@@ -57,10 +58,9 @@ public class UserServiceTests {
         userService.registerUser(register);
 
         UpdateUserRequest update = new UpdateUserRequest();
-        update.setId(1L);
         update.setName("update");
         update.setSurname("prueba2");
-        userService.updateUserProfile(update);
+        userService.updateUserProfile(update,"prueba@prueba.com");
 
         User user = userService.getUserById(1L);
 
