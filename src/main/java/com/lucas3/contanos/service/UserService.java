@@ -138,10 +138,12 @@ public class UserService implements IUserService{
     @Override
     public List<UserResponse> getAllUsers() {
         List<UserResponse> response = new ArrayList<>();
-        List<User> users =  userRepository.findAllByRol(ERole.ROLE_USER);
+        List<User> users =  userRepository.findAll();
         for (User user: users) {
-            UserResponse userResponse = new UserResponse(user);
-            userResponse.setIncidentCount(incidentRepository.countByUser(user));
+            if(user.getRol().equals(ERole.ROLE_USER)){
+                UserResponse userResponse = new UserResponse(user);
+                userResponse.setIncidentCount(incidentRepository.countByUser(user));
+            }
         }
         return response;
 
