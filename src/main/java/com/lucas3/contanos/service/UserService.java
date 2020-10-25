@@ -86,7 +86,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public ResponseEntity<?> authenticateUserWithGoogle(LoginGoogleRequest request) throws GeneralSecurityException, IOException, InvalidLoginException, FailedToLoadImageException {
+    public ResponseEntity<?> authenticateUserWithGoogle(LoginGoogleRequest request) throws GeneralSecurityException, IOException, InvalidLoginException {
         User user = authenticateWithGoogle(request);
 
         String jwt = jwtUtils.generateJwtTokenGoogle(user);
@@ -94,10 +94,11 @@ public class UserService implements IUserService{
         return ResponseEntity.ok(new LoginGoogleResponse(jwt,
                 user.getId(),
                 user.getEmail(),
-                user.getRol().toString()));
+                user.getRol().toString(),
+                user.getLastLoginDate() == null));
     }
 
-    private User authenticateWithGoogle(LoginGoogleRequest request) throws GeneralSecurityException, IOException, InvalidLoginException, FailedToLoadImageException {
+    private User authenticateWithGoogle(LoginGoogleRequest request) throws GeneralSecurityException, IOException, InvalidLoginException{
 
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance())
                 .setAudience(Collections.singletonList(CLIENT_ID_GOOGLE))
@@ -115,21 +116,17 @@ public class UserService implements IUserService{
                 userRepository.save(user.get());
                 return user.get();
             }else{
-                String photoUrl= "";
                 User newUser = new User(email);
 
-                if(request.getPhoto()!= null && !request.getPhoto().isEmpty()){
-                    photoUrl = imgbbService.uploadImgToImgbb(request.getPhoto());
-                }else{
-                    photoUrl = (String) payload.get("picture");
-                }
+                String name = (String) payload.get("name");
+                String pictureUrl = (String) payload.get("picture");
+                String familyName = (String) payload.get("family_name");
 
-                Profile newProfile = new Profile(newUser, request.getName(), request.getSurname(),photoUrl);
+                Profile newProfile = new Profile(newUser, name, familyName,pictureUrl);
                 profileRepository.save(newProfile);
                 newUser.setProfile(newProfile);
                 newUser.setRol(ERole.ROLE_USER);
                 newUser.setRegisterDate(new Date());
-                newUser.setLastLoginDate(new Date());
                 userRepository.save(newUser);
                 return newUser;
             }

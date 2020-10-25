@@ -1,5 +1,6 @@
 package com.lucas3.contanos.controller;
 
+import com.lucas3.contanos.model.exception.FailedToLoadImageException;
 import com.lucas3.contanos.model.exception.InvalidLoginException;
 import com.lucas3.contanos.model.exception.InvalidRegisterException;
 import com.lucas3.contanos.model.request.LoginGoogleRequest;
@@ -11,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 @RestController
 @CrossOrigin(origins = "*", methods= {RequestMethod.GET,RequestMethod.POST})
@@ -46,8 +50,12 @@ public class AuthController {
         try{
             validateLoginGoogle(request);
             return userService.authenticateUserWithGoogle(request);
-        }catch(Exception e){
+        } catch (GeneralSecurityException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El token de google es invalido"));
+        } catch (InvalidLoginException e) {
             return ResponseEntity.badRequest().body(new StandResponse("Las credenciales son invalidas"));
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("Hubo problemas en el servicio de autenticacion"));
         }
     }
 
