@@ -140,10 +140,9 @@ public class UserService implements IUserService{
         List<UserResponse> response = new ArrayList<>();
         List<User> users =  userRepository.findAll();
         for (User user: users) {
-            if(user.getRol().equals(ERole.ROLE_USER)){
-                UserResponse userResponse = new UserResponse(user);
-                userResponse.setIncidentCount(incidentRepository.countByUser(user));
-            }
+            UserResponse userResponse = new UserResponse(user);
+            userResponse.setIncidentCount(incidentRepository.countByUser(user));
+
         }
         return response;
 
