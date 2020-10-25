@@ -28,6 +28,6 @@ public interface IUserService {
 
     User getUserById(Long id);
 
-    User updateUserProfile(UpdateUserRequest request) throws FailedToLoadImageException, UserNotFoundException;
+    User updateUserProfile(UpdateUserRequest request, String email) throws FailedToLoadImageException, UserNotFoundException;
 
 }

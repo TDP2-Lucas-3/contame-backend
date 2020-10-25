@@ -58,10 +58,9 @@ public class UserServiceTests {
         userService.registerUser(register);
 
         UpdateUserRequest update = new UpdateUserRequest();
-        update.setId(1L);
         update.setName("update");
         update.setSurname("prueba2");
-        userService.updateUserProfile(update);
+        userService.updateUserProfile(update,"prueba@prueba.com");
 
         User user = userService.getUserById(1L);
 

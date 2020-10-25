@@ -159,8 +159,8 @@ public class UserService implements IUserService{
 
     @Override
     @Transactional
-    public User updateUserProfile(UpdateUserRequest request) throws FailedToLoadImageException, UserNotFoundException {
-        Optional<User> user = userRepository.findById(request.getId());
+    public User updateUserProfile(UpdateUserRequest request, String email) throws FailedToLoadImageException, UserNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
 
         if(user.isPresent()){
             user.get().getProfile().setName(request.getName());
