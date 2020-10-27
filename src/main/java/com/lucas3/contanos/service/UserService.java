@@ -7,6 +7,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.lucas3.contanos.entities.ERole;
+import com.lucas3.contanos.entities.EUserState;
 import com.lucas3.contanos.entities.Profile;
 import com.lucas3.contanos.entities.User;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
@@ -126,6 +127,7 @@ public class UserService implements IUserService{
                 profileRepository.save(newProfile);
                 newUser.setProfile(newProfile);
                 newUser.setRol(ERole.ROLE_USER);
+                newUser.setUserState(EUserState.ACTIVO);
                 newUser.setRegisterDate(new Date());
                 userRepository.save(newUser);
                 return newUser;
