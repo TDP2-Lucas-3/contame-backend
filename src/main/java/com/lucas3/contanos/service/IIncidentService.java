@@ -15,6 +15,8 @@ public interface IIncidentService {
 
     List<Incident> getAllIncidents();
 
+    List<Incident> getAllIncidentsByUser(String email);
+
     Incident getIncidentById(Long id) throws IncidentNotFoundException;
 
     List<Category> getCategories();
