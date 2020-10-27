@@ -37,6 +37,8 @@ public class Incident {
 
     private Date completeDate;
 
+    private EIncidentState state;
+
     public Incident() {}
 
     public Incident(String title, Category category){
@@ -144,5 +146,13 @@ public class Incident {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public EIncidentState getState() {
+        return state;
+    }
+
+    public void setState(EIncidentState state) {
+        this.state = state;
     }
 }

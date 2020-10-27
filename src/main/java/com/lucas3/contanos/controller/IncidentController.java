@@ -48,6 +48,12 @@ public class IncidentController {
        return incidentService.getAllIncidents();
     }
 
+    @GetMapping("/self")
+    public List<Incident> getMyIncidents(@RequestHeader("Authorization") String fullToken){
+        String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+        return incidentService.getAllIncidentsByUser(email);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?>  getIncidentById(@PathVariable Long id)  {
         try{

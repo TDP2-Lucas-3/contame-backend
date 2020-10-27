@@ -16,6 +16,7 @@ public class UserResponse {
     private Date registerDate;
     private Date lastLoginDate;
     private Integer incidentCount;
+    private String state;
 
     public UserResponse() {
     }
@@ -29,6 +30,7 @@ public class UserResponse {
         this.photo = user.getProfile().getPhoto();
         this.registerDate = user.getRegisterDate();
         this.lastLoginDate = user.getLastLoginDate();
+        this.state = user.getUserState().toString();
     }
 
     public Long getId() {
@@ -101,5 +103,13 @@ public class UserResponse {
 
     public void setIncidentCount(Integer incidentCount) {
         this.incidentCount = incidentCount;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }

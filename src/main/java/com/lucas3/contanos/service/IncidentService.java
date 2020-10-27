@@ -1,6 +1,7 @@
 package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.Category;
+import com.lucas3.contanos.entities.EIncidentState;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
 import com.lucas3.contanos.model.request.CategoryRequest;
@@ -45,6 +46,7 @@ public class IncidentService implements IIncidentService {
             incident.setImages(imagesURLs);
         }
         incident.setUser(userRepository.findByEmail(email).get());
+        incident.setState(EIncidentState.REPORTADO);
         incidentRepository.save(incident);
         return incident;
     }
@@ -52,6 +54,11 @@ public class IncidentService implements IIncidentService {
     @Override
     public List<Incident> getAllIncidents() {
         return incidentRepository.findAll();
+    }
+
+    @Override
+    public List<Incident> getAllIncidentsByUser(String email) {
+        return incidentRepository.findAllByUser(userRepository.findByEmail(email).get());
     }
 
     @Override

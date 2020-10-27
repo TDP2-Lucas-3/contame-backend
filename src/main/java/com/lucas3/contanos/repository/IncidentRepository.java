@@ -12,5 +12,7 @@ public interface IncidentRepository extends CrudRepository<Incident, Long> {
 
     List<Incident> findAll();
 
+    List<Incident> findAllByUser(User user);
+
     Integer countByUser(User user);
 }

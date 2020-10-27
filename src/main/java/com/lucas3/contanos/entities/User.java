@@ -37,7 +37,9 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL)
     private Profile profile;
 
-    private ERole rol ;
+    private ERole rol;
+
+    private EUserState userState;
 
     private Date registerDate;
     private Date lastLoginDate;
@@ -110,5 +112,13 @@ public class User {
 
     public void setLastLoginDate(Date lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
+    }
+
+    public EUserState getUserState() {
+        return userState;
+    }
+
+    public void setUserState(EUserState userState) {
+        this.userState = userState;
     }
 }
