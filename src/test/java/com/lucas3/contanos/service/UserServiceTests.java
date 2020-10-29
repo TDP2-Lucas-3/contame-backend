@@ -36,10 +36,10 @@ public class UserServiceTests {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
         userService.registerUser(register);
 
-        User user = userService.getUserById(1L);
+        UserResponse user = userService.getUserById(1L);
 
         Assert.assertEquals(user.getEmail(), "prueba@prueba.com");
-        Assert.assertEquals(user.getRol(), ERole.ROLE_ADMIN);
+        Assert.assertEquals(user.getRol(), ERole.ROLE_ADMIN.toString());
     }
 
     @Test
@@ -48,6 +48,15 @@ public class UserServiceTests {
         userService.registerUser(register);
         List<UserResponse> users = userService.getAllUsers();
         Assert.assertTrue(users.isEmpty());
+    }
+
+    @Test
+    public void getUserByEmail() throws FailedToLoadImageException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+        userService.registerUser(register);
+        UserResponse response = userService.getUserByEmail("prueba@prueba.com");
+        Assert.assertEquals(response.getEmail(), "prueba@prueba.com");
+        Assert.assertEquals(response.getRol(), ERole.ROLE_ADMIN.toString());
     }
 
     @Test
@@ -62,12 +71,12 @@ public class UserServiceTests {
         update.setSurname("prueba2");
         userService.updateUserProfile(update,"prueba@prueba.com");
 
-        User user = userService.getUserById(1L);
+        UserResponse user = userService.getUserById(1L);
 
         Assert.assertEquals(user.getEmail(), "prueba@prueba.com");
-        Assert.assertEquals(user.getRol(), ERole.ROLE_ADMIN);
-        Assert.assertEquals(user.getProfile().getName(), "update");
-        Assert.assertEquals(user.getProfile().getSurename(), "prueba2");
+        Assert.assertEquals(user.getRol(), ERole.ROLE_ADMIN.toString());
+        Assert.assertEquals(user.getName(), "update");
+        Assert.assertEquals(user.getSurname(), "prueba2");
 
     }
 }
