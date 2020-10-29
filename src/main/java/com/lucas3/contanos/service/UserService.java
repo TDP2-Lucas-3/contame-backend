@@ -152,10 +152,23 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public User getUserById(Long id) {
+    public UserResponse getUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
         if(user.isPresent()){
-            return user.get();
+            UserResponse response =  new UserResponse(user.get());
+            response.setIncidentCount(incidentRepository.countByUser(user.get()));
+            return response;
+        }
+        throw new UsernameNotFoundException("El usuario no existe");
+    }
+
+    @Override
+    public UserResponse getUserByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if(user.isPresent()){
+            UserResponse response =  new UserResponse(user.get());
+            response.setIncidentCount(incidentRepository.countByUser(user.get()));
+            return response;
         }
         throw new UsernameNotFoundException("El usuario no existe");
     }
@@ -194,6 +207,7 @@ public class UserService implements IUserService{
         // Create new user's account
         User user = new User(signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
+        user.setUserState(EUserState.ACTIVO);
         userRepository.save(user);
 
         Profile profile = new Profile(user, signUpRequest.getName(), signUpRequest.getSurname(),base64photo);

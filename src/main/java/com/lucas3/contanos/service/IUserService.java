@@ -26,7 +26,9 @@ public interface IUserService {
 
     List<UserResponse> getAllUsers();
 
-    User getUserById(Long id);
+    UserResponse getUserById(Long id);
+
+    UserResponse getUserByEmail(String email);
 
     User updateUserProfile(UpdateUserRequest request, String email) throws FailedToLoadImageException, UserNotFoundException;
 
