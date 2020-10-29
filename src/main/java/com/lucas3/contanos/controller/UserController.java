@@ -32,7 +32,17 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id)  {
         try{
-            return ResponseEntity.ok(new UserResponse(userService.getUserById(id)));
+            return ResponseEntity.ok(userService.getUserById(id));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getUserById(@RequestHeader("Authorization") String fullToken)  {
+        try{
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(userService.getUserByEmail(email));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
         }
