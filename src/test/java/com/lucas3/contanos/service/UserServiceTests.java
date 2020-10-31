@@ -91,7 +91,7 @@ public class UserServiceTests {
         userService.updateUserProfile(update,"prueba@prueba.com");
 
         UserResponse user = userService.getUserById(1L);
-        
+
         Assert.assertEquals(user.getEmail(), "prueba@prueba.com");
         Assert.assertEquals(user.getRol(), ERole.ROLE_ADMIN.toString());
         Assert.assertEquals(user.getName(), "update");
