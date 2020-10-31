@@ -184,6 +184,7 @@ public class UserService implements IUserService{
                 user.get().getProfile().setSurename(request.getSurname());
             }else{
                 Profile newProfile = new Profile(request.getName(),request.getSurname());
+                profileRepository.save(newProfile);
                 user.get().setProfile(newProfile);
             }
             if( request.getPhoto() != null && !request.getPhoto().isEmpty()){
