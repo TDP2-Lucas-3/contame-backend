@@ -21,10 +21,15 @@ public class Profile {
     public Profile() {
     }
 
-    public Profile(User user, String name, String surename, String photo) {
+    public Profile(String name, String surename, String photo) {
         this.name = name;
         this.surename = surename;
         this.photo = photo;
+    }
+
+    public Profile(String name, String surename) {
+        this.name = name;
+        this.surename = surename;
     }
 
     public Long getId() {
