@@ -21,6 +21,8 @@ public class JwtUtils {
     @Value("${contame.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    private final int tokenMulti= 60*1000*365;
+
     public String generateJwtToken(Authentication authentication) {
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
@@ -28,7 +30,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + (jwtExpirationMs*60*1000)))
+                .setExpiration(new Date((new Date()).getTime() + (jwtExpirationMs*tokenMulti)))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
     }
@@ -38,7 +40,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .setSubject((user.getEmail()))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + (jwtExpirationMs*60*1000)))
+                .setExpiration(new Date((new Date()).getTime() + (jwtExpirationMs*tokenMulti)))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
     }
