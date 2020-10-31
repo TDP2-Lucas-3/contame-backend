@@ -77,6 +77,24 @@ public class UserServiceTests {
         Assert.assertEquals(user.getRol(), ERole.ROLE_ADMIN.toString());
         Assert.assertEquals(user.getName(), "update");
         Assert.assertEquals(user.getSurname(), "prueba2");
+    }
 
+
+    @Test
+    public void updateUserWithoutProfileTest() throws FailedToLoadImageException, UserNotFoundException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+        userService.registerUser(register);
+
+        UpdateUserRequest update = new UpdateUserRequest();
+        update.setName("update");
+        update.setSurname("prueba2");
+        userService.updateUserProfile(update,"prueba@prueba.com");
+
+        UserResponse user = userService.getUserById(1L);
+        
+        Assert.assertEquals(user.getEmail(), "prueba@prueba.com");
+        Assert.assertEquals(user.getRol(), ERole.ROLE_ADMIN.toString());
+        Assert.assertEquals(user.getName(), "update");
+        Assert.assertEquals(user.getSurname(), "prueba2");
     }
 }

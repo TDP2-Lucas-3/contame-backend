@@ -123,7 +123,7 @@ public class UserService implements IUserService{
                 String pictureUrl = (String) payload.get("picture");
                 String familyName = (String) payload.get("family_name");
 
-                Profile newProfile = new Profile(newUser, name, familyName,pictureUrl);
+                Profile newProfile = new Profile(name, familyName,pictureUrl);
                 profileRepository.save(newProfile);
                 newUser.setProfile(newProfile);
                 newUser.setRol(ERole.ROLE_USER);
@@ -179,8 +179,13 @@ public class UserService implements IUserService{
         Optional<User> user = userRepository.findByEmail(email);
 
         if(user.isPresent()){
-            user.get().getProfile().setName(request.getName());
-            user.get().getProfile().setSurename(request.getSurname());
+            if(user.get().getProfile() != null){
+                user.get().getProfile().setName(request.getName());
+                user.get().getProfile().setSurename(request.getSurname());
+            }else{
+                Profile newProfile = new Profile(request.getName(),request.getSurname());
+                user.get().setProfile(newProfile);
+            }
             if( request.getPhoto() != null && !request.getPhoto().isEmpty()){
                 user.get().getProfile().setPhoto(imgbbService.uploadImgToImgbb(request.getPhoto()));
             }
@@ -210,7 +215,7 @@ public class UserService implements IUserService{
         user.setUserState(EUserState.ACTIVO);
         userRepository.save(user);
 
-        Profile profile = new Profile(user, signUpRequest.getName(), signUpRequest.getSurname(),base64photo);
+        Profile profile = new Profile(signUpRequest.getName(), signUpRequest.getSurname(),base64photo);
         profileRepository.save(profile);
         user.setProfile(profile);
         user.setRol(ERole.ROLE_ADMIN);
