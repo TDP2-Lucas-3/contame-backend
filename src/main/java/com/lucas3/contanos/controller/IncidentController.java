@@ -56,8 +56,15 @@ public class IncidentController {
     }
 
     @GetMapping("")
-    public List<Incident> getIncidents(){
-       return incidentService.getAllIncidents();
+    public ResponseEntity<?> getIncidents(@RequestHeader("Authorization") String fullToken){
+        try {
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(incidentService.getAllIncidents(email));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new StandResponse("Hubo un error creando tu incidente, Por favor intenta devuelta en unos minutos"));
+        }
     }
 
     @GetMapping("/self")
@@ -87,6 +94,31 @@ public class IncidentController {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
+        }
+    }
+
+    @PostMapping("/{id}/vote")
+    public ResponseEntity<?>  vote(@PathVariable Long id,@RequestHeader("Authorization") String fullToken)  {
+        try{
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(incidentService.vote(id,email));
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
+        }
+    }
+
+    @GetMapping("/{id}/comment")
+    public ResponseEntity<?>  getComments(@PathVariable Long id)  {
+        try{
+            return ResponseEntity.ok(incidentService.getComments(id));
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
         }

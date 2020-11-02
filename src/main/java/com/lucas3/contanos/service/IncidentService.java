@@ -8,10 +8,7 @@ import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.exception.IncidentNotFoundException;
-import com.lucas3.contanos.repository.CategoryRepository;
-import com.lucas3.contanos.repository.CommentRepository;
-import com.lucas3.contanos.repository.IncidentRepository;
-import com.lucas3.contanos.repository.UserRepository;
+import com.lucas3.contanos.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +23,9 @@ public class IncidentService implements IIncidentService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private VoteRepository voteRepository;
 
     @Autowired
     private CommentRepository commentRepository;
@@ -61,6 +61,22 @@ public class IncidentService implements IIncidentService {
         incident.setState(EIncidentState.REPORTADO);
         incidentRepository.save(incident);
         return incident;
+    }
+
+    @Override
+    public List<Incident> getAllIncidents(String email) throws UserNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if(!user.isPresent()) throw new UserNotFoundException();
+
+        List<Incident> incidents = incidentRepository.findAll();
+
+        for (Incident incident: incidents) {
+            incident.setVotes(voteRepository.countByIncident(incident));
+            incident.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),incident).isPresent());
+        }
+
+        return incidentRepository.findAll();
     }
 
     @Override
@@ -106,6 +122,29 @@ public class IncidentService implements IIncidentService {
         comment.setCategory(ECommentCategory.PUBLIC);
         commentRepository.save(comment);
         return comment;
+    }
+
+    @Override
+    public List<Comment> getComments(Long idIncident) throws IncidentNotFoundException {
+        Optional<Incident> incident = incidentRepository.findById(idIncident);
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        return commentRepository.findAllByIncident(incident.get());
+    }
+
+    @Override
+    public Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+        Optional<Incident> incident = incidentRepository.findById(idIncident);
+
+        if(!user.isPresent()) throw new UserNotFoundException();
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        Vote vote = new Vote(user.get(),incident.get());
+
+        voteRepository.save(vote);
+
+        return vote;
     }
 
 
