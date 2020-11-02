@@ -113,6 +113,23 @@ public class IncidentController {
         }
     }
 
+    @DeleteMapping("/{id}/unvote")
+    public ResponseEntity<?>  unvote(@PathVariable Long id,@RequestHeader("Authorization") String fullToken)  {
+        try{
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            incidentService.unvote(id,email);
+            return ResponseEntity.ok("");
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        } catch (VoteNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario habia votado por este incidente"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error eliminando el voto"));
+        }
+    }
+
     @GetMapping("/{id}/comment")
     public ResponseEntity<?>  getComments(@PathVariable Long id)  {
         try{
