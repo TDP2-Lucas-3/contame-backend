@@ -1,9 +1,14 @@
 package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.Category;
+import com.lucas3.contanos.entities.Comment;
 import com.lucas3.contanos.entities.Incident;
+import com.lucas3.contanos.entities.User;
+import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
+import com.lucas3.contanos.model.exception.UserNotFoundException;
 import com.lucas3.contanos.model.request.CategoryRequest;
+import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.exception.IncidentNotFoundException;
 
@@ -11,7 +16,7 @@ import java.util.List;
 
 public interface IIncidentService {
 
-    Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException;
+    Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException;
 
     List<Incident> getAllIncidents();
 
@@ -22,5 +27,7 @@ public interface IIncidentService {
     List<Category> getCategories();
 
     Category createCategory(CategoryRequest request);
+
+    Comment createComment(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException;
 
 }

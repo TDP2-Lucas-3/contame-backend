@@ -2,9 +2,9 @@ package com.lucas3.contanos.controller;
 
 import com.lucas3.contanos.entities.Category;
 import com.lucas3.contanos.entities.Incident;
-import com.lucas3.contanos.model.exception.InvalidCategoryException;
-import com.lucas3.contanos.model.exception.InvalidIncidentException;
+import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.request.CategoryRequest;
+import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.security.jwt.JwtUtils;
@@ -34,8 +34,20 @@ public class IncidentController {
             validateIncident(request);
             String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
             response = incidentService.createIncident(request, email);
+
+        } catch (FailedReverseGeocodeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new StandResponse("Error generando el geocoding"));
+        } catch (FailedToLoadImageException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new StandResponse("Error subiendo la imagen del incidente"));
+        } catch (InvalidIncidentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new StandResponse("La cateogria y el titulo no pueden ser nulos"));
         }catch(Exception e){
-            e.printStackTrace();
             return ResponseEntity
                     .badRequest()
                     .body(new StandResponse("Hubo un error creando tu incidente, Por favor intenta devuelta en unos minutos"));
@@ -62,6 +74,24 @@ public class IncidentController {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         }
     }
+
+    @PostMapping("/{id}/comment")
+    public ResponseEntity<?>  createComment(@PathVariable Long id,@RequestHeader("Authorization") String fullToken, @RequestBody CommentRequest request)  {
+        try{
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            validateComment(request);
+            return ResponseEntity.ok(incidentService.createComment(request,id,email));
+        } catch (InvalidCommentException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El comentario esta vacio"));
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
+        }
+    }
+
     @GetMapping("/categories")
     public List<Category> getCategories(){
         return incidentService.getCategories();
@@ -87,6 +117,11 @@ public class IncidentController {
     private void validateIncident(IncidentRequest request) throws InvalidIncidentException {
         if(request.getTitle() == null || StringUtils.isEmpty(request.getTitle())) throw new InvalidIncidentException();
         if(request.getCategory() == null || StringUtils.isEmpty(request.getCategory())) throw new InvalidIncidentException();
+    }
+
+    private void validateComment(CommentRequest request) throws InvalidCommentException {
+        if(request.getComment() == null || StringUtils.isEmpty(request.getComment())) throw new InvalidCommentException();
+
     }
 
 

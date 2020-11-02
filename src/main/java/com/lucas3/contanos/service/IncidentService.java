@@ -1,13 +1,15 @@
 package com.lucas3.contanos.service;
 
-import com.lucas3.contanos.entities.Category;
-import com.lucas3.contanos.entities.EIncidentState;
-import com.lucas3.contanos.entities.Incident;
+import com.lucas3.contanos.entities.*;
+import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
+import com.lucas3.contanos.model.exception.UserNotFoundException;
 import com.lucas3.contanos.model.request.CategoryRequest;
+import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.exception.IncidentNotFoundException;
 import com.lucas3.contanos.repository.CategoryRepository;
+import com.lucas3.contanos.repository.CommentRepository;
 import com.lucas3.contanos.repository.IncidentRepository;
 import com.lucas3.contanos.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +28,20 @@ public class IncidentService implements IIncidentService {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private ImgbbService imgbbService;
 
+    @Autowired
+    private GeocodingService geocodingService;
+
 
     @Override
-    public Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException {
+    public Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException {
         Optional<Category> category = categoryRepository.findById(request.getCategory());
 
         Incident incident = new Incident(request.getTitle(),category.get(),request.getDescription(), request.getLat(), request.getLon());
@@ -44,6 +52,10 @@ public class IncidentService implements IIncidentService {
                 imagesURLs.add(imgbbService.uploadImgToImgbb(imageBase64));
             }
             incident.setImages(imagesURLs);
+        }
+        if(request.getLat() != 0 && request.getLon() != 0){
+            String location = geocodingService.getLocationFromCoordinates(request.getLat(), request.getLon());
+            incident.setLocation(location);
         }
         incident.setUser(userRepository.findByEmail(email).get());
         incident.setState(EIncidentState.REPORTADO);
@@ -80,6 +92,20 @@ public class IncidentService implements IIncidentService {
     @Override
     public Category createCategory(CategoryRequest request) {
         return categoryRepository.save(new Category(request));
+    }
+
+    @Override
+    public Comment createComment(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+        Optional<Incident> incident = incidentRepository.findById(idIncident);
+
+        if(!user.isPresent()) throw new UserNotFoundException();
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        Comment comment = new Comment(request.getComment(),user.get(),incident.get());
+        comment.setCategory(ECommentCategory.PUBLIC);
+        commentRepository.save(comment);
+        return comment;
     }
 
 
