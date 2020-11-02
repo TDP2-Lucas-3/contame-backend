@@ -1,6 +1,8 @@
 package com.lucas3.contanos.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -20,12 +22,15 @@ public class Incident {
     private double lat;
     private double lon;
 
+    private String location;
+
     @ElementCollection
     private List<String> images;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Category category;
 
+    @JsonIgnore
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private User user;
 
@@ -154,5 +159,13 @@ public class Incident {
 
     public void setState(EIncidentState state) {
         this.state = state;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

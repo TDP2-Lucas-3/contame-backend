@@ -4,6 +4,9 @@ public class IncidentNotFoundException extends Exception{
 
     private String message;
 
+    public IncidentNotFoundException() {
+    }
+
     public IncidentNotFoundException(String message) {
         this.message= message;
     }
