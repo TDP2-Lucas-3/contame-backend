@@ -2,6 +2,7 @@ package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.Category;
 import com.lucas3.contanos.entities.Incident;
+import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
@@ -31,7 +32,7 @@ public class IncidentServiceTests {
 
 
     @Test
-    public void createTest() throws IOException, FailedToLoadImageException {
+    public void createTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
@@ -45,7 +46,7 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void findAllTest() throws IOException, FailedToLoadImageException {
+    public void findAllTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
@@ -58,7 +59,7 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void findByIdTest() throws IOException, FailedToLoadImageException {
+    public void findByIdTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
