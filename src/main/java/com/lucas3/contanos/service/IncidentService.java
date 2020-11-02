@@ -1,13 +1,10 @@
 package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.*;
-import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
-import com.lucas3.contanos.model.exception.FailedToLoadImageException;
-import com.lucas3.contanos.model.exception.UserNotFoundException;
+import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
-import com.lucas3.contanos.model.exception.IncidentNotFoundException;
 import com.lucas3.contanos.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -145,6 +142,25 @@ public class IncidentService implements IIncidentService {
         voteRepository.save(vote);
 
         return vote;
+    }
+
+    @Override
+    public void unvote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, VoteNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+        Optional<Incident> incident = incidentRepository.findById(idIncident);
+
+        if(!user.isPresent()) throw new UserNotFoundException();
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        Optional<Vote> vote = voteRepository.findByUserAndIncident(user.get(),incident.get());
+        if(vote.isPresent()){
+            voteRepository.delete(vote.get());
+        }else{
+            throw new VoteNotFoundException();
+        }
+
+
+
     }
 
 
