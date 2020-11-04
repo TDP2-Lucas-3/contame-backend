@@ -44,6 +44,8 @@ public class User {
     private Date registerDate;
     private Date lastLoginDate;
 
+    private String FCMToken;
+
     public User() {
     }
 
@@ -120,5 +122,13 @@ public class User {
 
     public void setUserState(EUserState userState) {
         this.userState = userState;
+    }
+
+    public String getFCMToken() {
+        return FCMToken;
+    }
+
+    public void setFCMToken(String FCMToken) {
+        this.FCMToken = FCMToken;
     }
 }

@@ -4,17 +4,11 @@ public class LoginGoogleRequest {
 
     private String token;
 
+    private String firebaseToken;
 
     public LoginGoogleRequest() {
     }
 
-    public LoginGoogleRequest(String token, String name, String surname, String photo) {
-        this.token = token;
-    }
-
-    public LoginGoogleRequest(String token) {
-        this.token = token;
-    }
 
     public String getToken() {
         return token;
@@ -24,4 +18,11 @@ public class LoginGoogleRequest {
         this.token = token;
     }
 
+    public String getFirebaseToken() {
+        return firebaseToken;
+    }
+
+    public void setFirebaseToken(String firebaseToken) {
+        this.firebaseToken = firebaseToken;
+    }
 }
