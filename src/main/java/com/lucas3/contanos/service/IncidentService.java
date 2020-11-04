@@ -2,10 +2,12 @@ package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.*;
 import com.lucas3.contanos.model.exception.*;
+import com.lucas3.contanos.model.firebase.PushNotificationRequest;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.repository.*;
+import com.lucas3.contanos.service.firebase.FCMService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +38,9 @@ public class IncidentService implements IIncidentService {
     @Autowired
     private GeocodingService geocodingService;
 
+    @Autowired
+    private FCMService fcmService;
+
 
     @Override
     public Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException {
@@ -54,10 +59,26 @@ public class IncidentService implements IIncidentService {
             String location = geocodingService.getLocationFromCoordinates(request.getLat(), request.getLon());
             incident.setLocation(location);
         }
-        incident.setUser(userRepository.findByEmail(email).get());
+        User user = userRepository.findByEmail(email).get();
+        incident.setUser(user);
         incident.setState(EIncidentState.REPORTADO);
         incidentRepository.save(incident);
+        enviarNotificacionPrueba(user);
+
         return incident;
+    }
+
+    private void enviarNotificacionPrueba(User user){
+        try{
+            PushNotificationRequest request = new PushNotificationRequest();
+            request.setTitle("PRUEBA");
+            request.setMessage("YO LO QUE QUIERO QUE QUIERAN LO MISMO QUE TODOS QUEREMOS");
+            request.setToken(user.getFCMToken());
+            fcmService.sendMessageToToken(request);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     @Override

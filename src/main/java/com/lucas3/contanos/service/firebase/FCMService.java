@@ -44,13 +44,26 @@ public class FCMService {
                         .setColor(NotificationParameter.COLOR.getValue()).setTag(topic).build()).build();
     }
 
+    private AndroidConfig getAndroidConfig() {
+        return AndroidConfig.builder()
+                .setTtl(Duration.ofMinutes(2).toMillis())
+                .setPriority(AndroidConfig.Priority.HIGH)
+                .setNotification(AndroidNotification.builder().setSound(NotificationParameter.SOUND.getValue())
+                        .setColor(NotificationParameter.COLOR.getValue()).build()).build();
+    }
+
     private ApnsConfig getApnsConfig(String topic) {
         return ApnsConfig.builder()
                 .setAps(Aps.builder().setCategory(topic).setThreadId(topic).build()).build();
     }
 
+    private ApnsConfig getApnsConfig() {
+        return ApnsConfig.builder()
+                .setAps(Aps.builder().build()).build();
+    }
+
     private Message getPreconfiguredMessageToToken(PushNotificationRequest request) {
-        return getPreconfiguredMessageBuilder(request).setToken(request.getToken())
+        return getPreconfiguredMessageBuilderWithoutTopic(request).setToken(request.getToken())
                 .build();
     }
 
@@ -67,6 +80,14 @@ public class FCMService {
     private Message.Builder getPreconfiguredMessageBuilder(PushNotificationRequest request) {
         AndroidConfig androidConfig = getAndroidConfig(request.getTopic());
         ApnsConfig apnsConfig = getApnsConfig(request.getTopic());
+        return Message.builder()
+                .setApnsConfig(apnsConfig).setAndroidConfig(androidConfig).setNotification(
+                        new Notification(request.getTitle(), request.getMessage()));
+    }
+
+    private Message.Builder getPreconfiguredMessageBuilderWithoutTopic(PushNotificationRequest request) {
+        AndroidConfig androidConfig = getAndroidConfig();
+        ApnsConfig apnsConfig = getApnsConfig();
         return Message.builder()
                 .setApnsConfig(apnsConfig).setAndroidConfig(androidConfig).setNotification(
                         new Notification(request.getTitle(), request.getMessage()));
