@@ -114,6 +114,7 @@ public class UserService implements IUserService{
 
             if(user.isPresent()){
                 user.get().setLastLoginDate(new Date());
+                user.get().setFCMToken(request.getFirebaseToken());
                 userRepository.save(user.get());
                 return user.get();
             }else{
@@ -129,6 +130,7 @@ public class UserService implements IUserService{
                 newUser.setRol(ERole.ROLE_USER);
                 newUser.setUserState(EUserState.ACTIVO);
                 newUser.setRegisterDate(new Date());
+                newUser.setFCMToken(request.getFirebaseToken());
                 userRepository.save(newUser);
                 return newUser;
             }
