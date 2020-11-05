@@ -24,6 +24,8 @@ public class Incident {
 
     private String location;
 
+    private String hood;
+
     @ElementCollection
     private List<String> images;
 
@@ -189,5 +191,13 @@ public class Incident {
 
     public void setVoteByUser(boolean voteByUser) {
         this.voteByUser = voteByUser;
+    }
+
+    public String getHood() {
+        return hood;
+    }
+
+    public void setHood(String hood) {
+        this.hood = hood;
     }
 }

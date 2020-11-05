@@ -3,6 +3,7 @@ package com.lucas3.contanos.controller;
 import com.lucas3.contanos.entities.Category;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.*;
+import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
@@ -56,10 +57,13 @@ public class IncidentController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getIncidents(@RequestHeader("Authorization") String fullToken){
+    public ResponseEntity<?> getIncidents(@RequestHeader("Authorization") String fullToken,
+                                          @RequestParam(value = "hood", required = false, defaultValue="") String hood,
+                                          @RequestParam(value = "category", required = false, defaultValue="") String category){
         try {
             String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
-            return ResponseEntity.ok(incidentService.getAllIncidents(email));
+            IncidentFilter filter = new IncidentFilter(hood,category);
+            return ResponseEntity.ok(incidentService.getAllIncidents(email,filter));
         } catch (UserNotFoundException e) {
             return ResponseEntity
                     .badRequest()
@@ -68,9 +72,16 @@ public class IncidentController {
     }
 
     @GetMapping("/self")
-    public List<Incident> getMyIncidents(@RequestHeader("Authorization") String fullToken){
-        String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
-        return incidentService.getAllIncidentsByUser(email);
+    public ResponseEntity<?> getMyIncidents(@RequestHeader("Authorization") String fullToken){
+        try{
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(incidentService.getAllIncidentsByUser(email));
+        }catch (UserNotFoundException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new StandResponse("Hubo un error creando tu incidente, Por favor intenta devuelta en unos minutos"));
+        }
+
     }
 
     @GetMapping("/{id}")
