@@ -2,12 +2,14 @@ package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.*;
 import com.lucas3.contanos.model.exception.*;
+import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.firebase.PushNotificationRequest;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.repository.*;
 import com.lucas3.contanos.service.firebase.FCMService;
+import com.lucas3.contanos.service.firebase.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +41,7 @@ public class IncidentService implements IIncidentService {
     private GeocodingService geocodingService;
 
     @Autowired
-    private FCMService fcmService;
+    private NotificationService notificationService;
 
 
     @Override
@@ -58,43 +60,33 @@ public class IncidentService implements IIncidentService {
         if(request.getLat() != 0 && request.getLon() != 0){
             String location = geocodingService.getLocationFromCoordinates(request.getLat(), request.getLon());
             incident.setLocation(location);
+            incident.setHood(location.split(",")[1].trim());
         }
         User user = userRepository.findByEmail(email).get();
         incident.setUser(user);
         incident.setState(EIncidentState.REPORTADO);
         incidentRepository.save(incident);
-        enviarNotificacionPrueba(user);
+        notificationService.enviarNotificacionPrueba(user);
 
         return incident;
     }
 
-    private void enviarNotificacionPrueba(User user){
-        try{
-            PushNotificationRequest request = new PushNotificationRequest();
-            request.setTitle("PRUEBA");
-            request.setMessage("YO LO QUE QUIERO QUE QUIERAN LO MISMO QUE TODOS QUEREMOS");
-            request.setToken(user.getFCMToken());
-            fcmService.sendMessageToToken(request);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
 
-    }
 
     @Override
-    public List<Incident> getAllIncidents(String email) throws UserNotFoundException {
+    public List<Incident> getAllIncidents(String email, IncidentFilter filter) throws UserNotFoundException {
         Optional<User> user = userRepository.findByEmail(email);
 
         if(!user.isPresent()) throw new UserNotFoundException();
 
-        List<Incident> incidents = incidentRepository.findAll();
+        List<Incident> incidents = incidentRepository.findAll(filter);
 
         for (Incident incident: incidents) {
             incident.setVotes(voteRepository.countByIncident(incident));
             incident.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),incident).isPresent());
         }
 
-        return incidentRepository.findAll();
+        return incidents;
     }
 
     @Override
@@ -103,8 +95,18 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public List<Incident> getAllIncidentsByUser(String email) {
-        return incidentRepository.findAllByUser(userRepository.findByEmail(email).get());
+    public List<Incident> getAllIncidentsByUser(String email) throws UserNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if(!user.isPresent()) throw new UserNotFoundException();
+
+        List<Incident> incidents = incidentRepository.findAllByUser(userRepository.findByEmail(email).get());
+
+        for (Incident incident: incidents) {
+            incident.setVotes(voteRepository.countByIncident(incident));
+            incident.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),incident).isPresent());
+        }
+        return incidents;
     }
 
     @Override
@@ -161,7 +163,7 @@ public class IncidentService implements IIncidentService {
         Vote vote = new Vote(user.get(),incident.get());
 
         voteRepository.save(vote);
-
+        notificationService.sendVoteNotification(user.get(),incident.get());
         return vote;
     }
 
@@ -179,9 +181,6 @@ public class IncidentService implements IIncidentService {
         }else{
             throw new VoteNotFoundException();
         }
-
-
-
     }
 
 
