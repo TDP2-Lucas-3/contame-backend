@@ -4,6 +4,8 @@ import com.lucas3.contanos.entities.Category;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
+import com.lucas3.contanos.model.exception.UserNotFoundException;
+import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.exception.IncidentNotFoundException;
@@ -59,6 +61,50 @@ public class IncidentServiceTests {
     }
 
     @Test
+    public void findAllTestEmptyFilters() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+        userService.registerUser(register);
+        Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
+        IncidentRequest request = new IncidentRequest("Prueba", 1L);
+        IncidentFilter filter = new IncidentFilter("","");
+        Incident incident1 = incidentService.createIncident(request,"prueba@prueba.com");
+        Incident incident2 = incidentService.createIncident(request,"prueba@prueba.com");
+        Incident incident3 = incidentService.createIncident(request,"prueba@prueba.com");
+        List<Incident> incidents = incidentService.getAllIncidents("prueba@prueba.com",filter);
+        Assert.assertTrue(incidents.size() == 3);
+    }
+
+    @Test
+    public void findAllTestCategory() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+        userService.registerUser(register);
+        Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
+        Category category2 = incidentService.createCategory(new CategoryRequest("ROBO2", "Incidencia de robo2"));
+        IncidentRequest request = new IncidentRequest("Prueba", 1L);
+        IncidentFilter filter = new IncidentFilter("","ROBO");
+        Incident incident1 = incidentService.createIncident(request,"prueba@prueba.com");
+        Incident incident2 = incidentService.createIncident(request,"prueba@prueba.com");
+        Incident incident3 = incidentService.createIncident(request,"prueba@prueba.com");
+        List<Incident> incidents = incidentService.getAllIncidents("prueba@prueba.com",filter);
+        Assert.assertTrue(incidents.size() == 3);
+    }
+
+    @Test
+    public void findNoneTestCategory() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+        userService.registerUser(register);
+        Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
+        Category category2 = incidentService.createCategory(new CategoryRequest("ROBO2", "Incidencia de robo2"));
+        IncidentRequest request = new IncidentRequest("Prueba", 1L);
+        IncidentFilter filter = new IncidentFilter("","ROBO2");
+        Incident incident1 = incidentService.createIncident(request,"prueba@prueba.com");
+        Incident incident2 = incidentService.createIncident(request,"prueba@prueba.com");
+        Incident incident3 = incidentService.createIncident(request,"prueba@prueba.com");
+        List<Incident> incidents = incidentService.getAllIncidents("prueba@prueba.com",filter);
+        Assert.assertTrue(incidents.size() == 0);
+    }
+
+    @Test
     public void findByIdTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
         userService.registerUser(register);
@@ -95,6 +141,16 @@ public class IncidentServiceTests {
         }
         List<Category> categories = incidentService.getCategories();
         Assert.assertEquals(categories.size(), 1);
+    }
+
+    @Test
+    public void getHood(){
+        String location = "Amphitheatre Py 1600, Charleston Terrace";
+        String result = location.split(",")[1].trim();
+
+        Assert.assertEquals(result,"Charleston Terrace");
+
+
     }
 
 }

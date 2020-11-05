@@ -3,6 +3,7 @@ package com.lucas3.contanos.controller;
 import com.lucas3.contanos.entities.Category;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.*;
+import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
@@ -56,14 +57,31 @@ public class IncidentController {
     }
 
     @GetMapping("")
-    public List<Incident> getIncidents(){
-       return incidentService.getAllIncidents();
+    public ResponseEntity<?> getIncidents(@RequestHeader("Authorization") String fullToken,
+                                          @RequestParam(value = "hood", required = false, defaultValue="") String hood,
+                                          @RequestParam(value = "category", required = false, defaultValue="") String category){
+        try {
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            IncidentFilter filter = new IncidentFilter(hood,category);
+            return ResponseEntity.ok(incidentService.getAllIncidents(email,filter));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new StandResponse("Hubo un error creando tu incidente, Por favor intenta devuelta en unos minutos"));
+        }
     }
 
     @GetMapping("/self")
-    public List<Incident> getMyIncidents(@RequestHeader("Authorization") String fullToken){
-        String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
-        return incidentService.getAllIncidentsByUser(email);
+    public ResponseEntity<?> getMyIncidents(@RequestHeader("Authorization") String fullToken){
+        try{
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(incidentService.getAllIncidentsByUser(email));
+        }catch (UserNotFoundException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new StandResponse("Hubo un error creando tu incidente, Por favor intenta devuelta en unos minutos"));
+        }
+
     }
 
     @GetMapping("/{id}")
@@ -87,6 +105,48 @@ public class IncidentController {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
+        }
+    }
+
+    @PostMapping("/{id}/vote")
+    public ResponseEntity<?>  vote(@PathVariable Long id,@RequestHeader("Authorization") String fullToken)  {
+        try{
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(incidentService.vote(id,email));
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
+        }
+    }
+
+    @DeleteMapping("/{id}/unvote")
+    public ResponseEntity<?>  unvote(@PathVariable Long id,@RequestHeader("Authorization") String fullToken)  {
+        try{
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            incidentService.unvote(id,email);
+            return ResponseEntity.ok("");
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        } catch (VoteNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario habia votado por este incidente"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error eliminando el voto"));
+        }
+    }
+
+    @GetMapping("/{id}/comment")
+    public ResponseEntity<?>  getComments(@PathVariable Long id)  {
+        try{
+            return ResponseEntity.ok(incidentService.getComments(id));
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
         }

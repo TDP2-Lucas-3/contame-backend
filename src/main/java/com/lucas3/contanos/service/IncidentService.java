@@ -1,17 +1,15 @@
 package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.*;
-import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
-import com.lucas3.contanos.model.exception.FailedToLoadImageException;
-import com.lucas3.contanos.model.exception.UserNotFoundException;
+import com.lucas3.contanos.model.exception.*;
+import com.lucas3.contanos.model.filters.IncidentFilter;
+import com.lucas3.contanos.model.firebase.PushNotificationRequest;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
-import com.lucas3.contanos.model.exception.IncidentNotFoundException;
-import com.lucas3.contanos.repository.CategoryRepository;
-import com.lucas3.contanos.repository.CommentRepository;
-import com.lucas3.contanos.repository.IncidentRepository;
-import com.lucas3.contanos.repository.UserRepository;
+import com.lucas3.contanos.repository.*;
+import com.lucas3.contanos.service.firebase.FCMService;
+import com.lucas3.contanos.service.firebase.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +26,9 @@ public class IncidentService implements IIncidentService {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private VoteRepository voteRepository;
+
+    @Autowired
     private CommentRepository commentRepository;
 
     @Autowired
@@ -38,6 +39,9 @@ public class IncidentService implements IIncidentService {
 
     @Autowired
     private GeocodingService geocodingService;
+
+    @Autowired
+    private NotificationService notificationService;
 
 
     @Override
@@ -56,11 +60,33 @@ public class IncidentService implements IIncidentService {
         if(request.getLat() != 0 && request.getLon() != 0){
             String location = geocodingService.getLocationFromCoordinates(request.getLat(), request.getLon());
             incident.setLocation(location);
+            incident.setHood(location.split(",")[1].trim());
         }
-        incident.setUser(userRepository.findByEmail(email).get());
+        User user = userRepository.findByEmail(email).get();
+        incident.setUser(user);
         incident.setState(EIncidentState.REPORTADO);
         incidentRepository.save(incident);
+        notificationService.enviarNotificacionPrueba(user);
+
         return incident;
+    }
+
+
+
+    @Override
+    public List<Incident> getAllIncidents(String email, IncidentFilter filter) throws UserNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if(!user.isPresent()) throw new UserNotFoundException();
+
+        List<Incident> incidents = incidentRepository.findAll(filter);
+
+        for (Incident incident: incidents) {
+            incident.setVotes(voteRepository.countByIncident(incident));
+            incident.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),incident).isPresent());
+        }
+
+        return incidents;
     }
 
     @Override
@@ -69,8 +95,18 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public List<Incident> getAllIncidentsByUser(String email) {
-        return incidentRepository.findAllByUser(userRepository.findByEmail(email).get());
+    public List<Incident> getAllIncidentsByUser(String email) throws UserNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if(!user.isPresent()) throw new UserNotFoundException();
+
+        List<Incident> incidents = incidentRepository.findAllByUser(userRepository.findByEmail(email).get());
+
+        for (Incident incident: incidents) {
+            incident.setVotes(voteRepository.countByIncident(incident));
+            incident.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),incident).isPresent());
+        }
+        return incidents;
     }
 
     @Override
@@ -106,6 +142,45 @@ public class IncidentService implements IIncidentService {
         comment.setCategory(ECommentCategory.PUBLIC);
         commentRepository.save(comment);
         return comment;
+    }
+
+    @Override
+    public List<Comment> getComments(Long idIncident) throws IncidentNotFoundException {
+        Optional<Incident> incident = incidentRepository.findById(idIncident);
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        return commentRepository.findAllByIncident(incident.get());
+    }
+
+    @Override
+    public Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+        Optional<Incident> incident = incidentRepository.findById(idIncident);
+
+        if(!user.isPresent()) throw new UserNotFoundException();
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        Vote vote = new Vote(user.get(),incident.get());
+
+        voteRepository.save(vote);
+        notificationService.sendVoteNotification(user.get(),incident.get());
+        return vote;
+    }
+
+    @Override
+    public void unvote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, VoteNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+        Optional<Incident> incident = incidentRepository.findById(idIncident);
+
+        if(!user.isPresent()) throw new UserNotFoundException();
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        Optional<Vote> vote = voteRepository.findByUserAndIncident(user.get(),incident.get());
+        if(vote.isPresent()){
+            voteRepository.delete(vote.get());
+        }else{
+            throw new VoteNotFoundException();
+        }
     }
 
 

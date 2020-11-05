@@ -24,6 +24,8 @@ public class Incident {
 
     private String location;
 
+    private String hood;
+
     @ElementCollection
     private List<String> images;
 
@@ -43,6 +45,12 @@ public class Incident {
     private Date completeDate;
 
     private EIncidentState state;
+
+    @Transient
+    private Integer votes;
+
+    @Transient
+    private boolean voteByUser;
 
     public Incident() {}
 
@@ -167,5 +175,29 @@ public class Incident {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Integer getVotes() {
+        return votes;
+    }
+
+    public void setVotes(Integer votes) {
+        this.votes = votes;
+    }
+
+    public boolean isVoteByUser() {
+        return voteByUser;
+    }
+
+    public void setVoteByUser(boolean voteByUser) {
+        this.voteByUser = voteByUser;
+    }
+
+    public String getHood() {
+        return hood;
+    }
+
+    public void setHood(String hood) {
+        this.hood = hood;
     }
 }
