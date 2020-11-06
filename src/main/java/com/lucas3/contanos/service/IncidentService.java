@@ -7,6 +7,7 @@ import com.lucas3.contanos.model.firebase.PushNotificationRequest;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
+import com.lucas3.contanos.model.response.geocoding.LocationResponse;
 import com.lucas3.contanos.repository.*;
 import com.lucas3.contanos.service.firebase.FCMService;
 import com.lucas3.contanos.service.firebase.NotificationService;
@@ -58,15 +59,15 @@ public class IncidentService implements IIncidentService {
             incident.setImages(imagesURLs);
         }
         if(request.getLat() != 0 && request.getLon() != 0){
-            String location = geocodingService.getLocationFromCoordinates(request.getLat(), request.getLon());
-            incident.setLocation(location);
-            incident.setHood(location.split(",")[1].trim());
+            LocationResponse location = geocodingService.getLocationFromCoordinates(request.getLat(), request.getLon());
+            incident.setLocation(location.getAddress());
+            incident.setHood(location.getHood());
         }
         User user = userRepository.findByEmail(email).get();
         incident.setUser(user);
         incident.setState(EIncidentState.REPORTADO);
         incidentRepository.save(incident);
-        notificationService.enviarNotificacionPrueba(user);
+        notificationService.sendIncidentNotification(user,incident);
 
         return incident;
     }

@@ -3,6 +3,7 @@ package com.lucas3.contanos.service;
 import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
 import com.lucas3.contanos.model.response.geocoding.GeocodingAddress;
+import com.lucas3.contanos.model.response.geocoding.LocationResponse;
 import com.lucas3.contanos.model.response.geocoding.ReverseGeocodingResponse;
 import com.lucas3.contanos.model.response.imgbb.UploadImageResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,7 @@ public class GeocodingService implements  IGeocodingService{
     private String clientIdGeocoding;
 
     @Override
-    public String getLocationFromCoordinates(Double latitude, Double longitude) throws FailedReverseGeocodeException, NullPointerException {
+    public LocationResponse getLocationFromCoordinates(Double latitude, Double longitude) throws FailedReverseGeocodeException, NullPointerException {
         RestTemplate restTemplate = new RestTemplate();
         String url = "https://us1.locationiq.com/v1/reverse.php?key="+clientIdGeocoding+
                     "&format=json"+
@@ -34,11 +35,14 @@ public class GeocodingService implements  IGeocodingService{
     }
 
 
-    private String convertAddress(GeocodingAddress address){
+    private LocationResponse convertAddress(GeocodingAddress address){
+        LocationResponse location = new LocationResponse();
         if(address.getName() == null || address.getName().isEmpty()){
-            return address.getRoad()+" "+ address.getHouse_number()+", "+ address.getNeighbourhood();
+            location.setAddress(address.getRoad()+" "+ address.getHouse_number()+", "+ address.getSuburb());
         }else{
-            return address.getName()+ ", " + address.getNeighbourhood();
+            location.setAddress(address.getName()+ ", " + address.getSuburb());
         }
+        location.setHood(address.getSuburb());
+        return location;
     }
 }
