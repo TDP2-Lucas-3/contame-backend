@@ -27,6 +27,18 @@ public class NotificationService {
         }
     }
 
+    public void sendIncidentNotification(User user, Incident incident){
+        try{
+            PushNotificationRequest request = new PushNotificationRequest();
+            request.setTitle("Te escuchamos");
+            request.setMessage("Recibimos tu reporte de " + incident.getCategory().getName().toLowerCase());
+            request.setToken(user.getFCMToken());
+            fcmService.sendMessageToToken(request);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public void sendVoteNotification(User voter, Incident incident){
         try{
             Map<String,String> data = new HashMap<>();

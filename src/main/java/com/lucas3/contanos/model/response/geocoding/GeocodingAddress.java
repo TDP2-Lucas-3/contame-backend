@@ -6,6 +6,7 @@ public class GeocodingAddress {
     private String road;
     private String neighbourhood;
     private String name;
+    private String suburb;
 
     public GeocodingAddress() {
     }
@@ -40,5 +41,13 @@ public class GeocodingAddress {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSuburb() {
+        return suburb;
+    }
+
+    public void setSuburb(String suburb) {
+        this.suburb = suburb;
     }
 }
