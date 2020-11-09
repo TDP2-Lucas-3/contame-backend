@@ -1,6 +1,7 @@
 package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.Category;
+import com.lucas3.contanos.entities.EIncidentState;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
@@ -116,8 +117,8 @@ public class IncidentServiceTests {
         Incident incident2 = incidentService.createIncident(request,"prueba@prueba.com");
         Incident incident3 = incidentService.createIncident(request3,"prueba@prueba.com");
         try{
-            result = incidentService.getIncidentById(3L);
-        } catch (IncidentNotFoundException e) {
+            result = incidentService.getIncidentById(3L,"prueba@prueba.com");
+        } catch (IncidentNotFoundException | UserNotFoundException e) {
             e.printStackTrace();
         }
         Assert.assertEquals(request3.getTitle(), result.getTitle());
@@ -149,8 +150,23 @@ public class IncidentServiceTests {
         String result = location.split(",")[1].trim();
 
         Assert.assertEquals(result,"Charleston Terrace");
+    }
 
-
+    @Test
+    public void changeStateTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, IncidentNotFoundException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+        userService.registerUser(register);
+        incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
+        Incident result = null;
+        IncidentRequest request = new IncidentRequest("Prueba", 1L);
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.changeState(1L, EIncidentState.RECHAZADO.toString());
+        try{
+            result = incidentService.getIncidentById(1L,"prueba@prueba.com");
+        } catch (IncidentNotFoundException | UserNotFoundException e) {
+            e.printStackTrace();
+        }
+        Assert.assertEquals(result.getState(), EIncidentState.RECHAZADO);
     }
 
 }
