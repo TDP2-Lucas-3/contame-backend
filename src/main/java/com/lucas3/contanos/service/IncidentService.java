@@ -111,10 +111,16 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public Incident getIncidentById(Long id) throws IncidentNotFoundException {
+    public Incident getIncidentById(Long id, String email) throws IncidentNotFoundException, UserNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+        if(!user.isPresent()) throw new UserNotFoundException();
+
         Optional<Incident> incident = incidentRepository.findById(id);
         if(incident.isPresent()){
-            return incident.get();
+            Incident inc = incident.get();
+            inc.setVotes(voteRepository.countByIncident(inc));
+            inc.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),inc).isPresent());
+            return inc;
         }
         throw new IncidentNotFoundException("Reporte inexistente");
     }
@@ -182,6 +188,21 @@ public class IncidentService implements IIncidentService {
         }else{
             throw new VoteNotFoundException();
         }
+    }
+
+    @Override
+    public List<EIncidentState> getStates() {
+        return Arrays.asList(EIncidentState.values());
+    }
+
+    @Override
+    public void changeState(Long id, String state) throws IncidentNotFoundException{
+        Optional<Incident> incident = incidentRepository.findById(id);
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+        EIncidentState newState = EIncidentState.valueOf(state);
+        incident.get().setState(newState);
+        incidentRepository.save(incident.get());
+        notificationService.sendChangeStateNotification(incident.get());
     }
 
 

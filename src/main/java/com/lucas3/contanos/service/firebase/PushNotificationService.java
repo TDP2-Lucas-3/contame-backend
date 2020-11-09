@@ -1,4 +1,4 @@
-package com.lucas3.contanos.service;
+package com.lucas3.contanos.service.firebase;
 
 import com.lucas3.contanos.model.firebase.PushNotificationRequest;
 import com.lucas3.contanos.service.firebase.FCMService;
