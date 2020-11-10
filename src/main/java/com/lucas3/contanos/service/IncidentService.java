@@ -160,12 +160,14 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException {
+    public Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, InvalidVoteException {
         Optional<User> user = userRepository.findByEmail(email);
         Optional<Incident> incident = incidentRepository.findById(idIncident);
 
         if(!user.isPresent()) throw new UserNotFoundException();
         if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        if(user.get().getEmail().equals(incident.get().getUser().getEmail())) throw new InvalidVoteException();
 
         Vote vote = new Vote(user.get(),incident.get());
 
