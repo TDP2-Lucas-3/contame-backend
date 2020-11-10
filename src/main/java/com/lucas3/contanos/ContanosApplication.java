@@ -16,7 +16,6 @@ public class ContanosApplication extends SpringBootServletInitializer {
 		return application.sources(ContanosApplication.class);
 	}
 
-
 	public static void main(String[] args) {
 		SpringApplication.run(ContanosApplication.class, args);
 	}
