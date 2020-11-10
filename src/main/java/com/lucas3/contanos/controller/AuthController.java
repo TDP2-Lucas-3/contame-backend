@@ -3,18 +3,22 @@ package com.lucas3.contanos.controller;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
 import com.lucas3.contanos.model.exception.InvalidLoginException;
 import com.lucas3.contanos.model.exception.InvalidRegisterException;
+import com.lucas3.contanos.model.exception.InvalidTokenException;
 import com.lucas3.contanos.model.request.LoginGoogleRequest;
 import com.lucas3.contanos.model.request.RegisterRequest;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.model.request.LoginRequest;
 import com.lucas3.contanos.service.UserService;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Base64;
 
 @RestController
 @CrossOrigin(origins = "*", methods= {RequestMethod.GET,RequestMethod.POST})
@@ -24,12 +28,20 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Value("${contame.app.secretAdmin}")
+    private String secretAdmin;
+
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest){
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest, @RequestHeader("Authorization") String token){
         try{
+            validateToken(token);
             validateRegister(registerRequest);
             return userService.registerUser(registerRequest);
-        } catch (Exception e) {
+        } catch (InvalidRegisterException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("FALTA EMAIL O PASSWORD"));
+        } catch (InvalidTokenException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("CREDENCIALES INVALIDAS"));
+        }catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(new StandResponse("Tuvimos un problema registrando tu usuario, vuelve a intentarlo mas tarde"));
         }
@@ -73,6 +85,13 @@ public class AuthController {
         if(request.getToken() == null || StringUtils.isEmpty(request.getToken())) throw new InvalidLoginException();
     }
 
-
+    private void validateToken(String token) throws InvalidTokenException {
+        if (token.startsWith("Contame ")) {
+            String secret = DigestUtils.sha256Hex(token.substring(8, token.length()));
+            if(!secret.equals(secretAdmin)) throw new InvalidTokenException();
+        }else{
+            throw new InvalidTokenException();
+        }
+    }
 
 }
