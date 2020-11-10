@@ -1,6 +1,7 @@
 package com.lucas3.contanos.controller;
 
 import com.lucas3.contanos.entities.Category;
+import com.lucas3.contanos.entities.EIncidentState;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.filters.IncidentFilter;
@@ -85,11 +86,14 @@ public class IncidentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?>  getIncidentById(@PathVariable Long id)  {
+    public ResponseEntity<?>  getIncidentById(@PathVariable Long id,@RequestHeader("Authorization") String fullToken)  {
         try{
-            return ResponseEntity.ok(incidentService.getIncidentById(id));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(incidentService.getIncidentById(id, email));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe - TOKEN INVALIDO"));
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El inicdente no existe - ID INVALIDO"));
         }
     }
 
@@ -119,8 +123,10 @@ public class IncidentController {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        } catch (InvalidVoteException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("No podes votar tu propia incidencia"));
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
+            return ResponseEntity.badRequest().body(new StandResponse("Error creando el voto"));
         }
     }
 
@@ -169,6 +175,23 @@ public class IncidentController {
         }
     }
 
+    @GetMapping("/state")
+    public List<EIncidentState> getStates(){
+        return incidentService.getStates();
+    }
+
+    @PutMapping("/{id}/state/{state}")
+    public ResponseEntity<?>  changeStates(@PathVariable Long id, @PathVariable String state){
+        try{
+            incidentService.changeState(id,state);
+            return ResponseEntity.ok("El incidente se actualizo correctamente");
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente no existe - ID INVALIDO"));
+        } catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(new StandResponse("Estado invalido"));
+        }
+    }
+
     private void validateCategory(CategoryRequest request) throws InvalidCategoryException {
         if(request.getName() == null || StringUtils.isEmpty(request.getName())) throw new InvalidCategoryException();
         if(request.getDescription() == null || StringUtils.isEmpty(request.getDescription())) throw new InvalidCategoryException();
@@ -183,8 +206,6 @@ public class IncidentController {
         if(request.getComment() == null || StringUtils.isEmpty(request.getComment())) throw new InvalidCommentException();
 
     }
-
-
 
 
 }

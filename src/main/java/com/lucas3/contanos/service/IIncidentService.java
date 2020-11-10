@@ -18,7 +18,7 @@ public interface IIncidentService {
 
     List<Incident> getAllIncidentsByUser(String email) throws UserNotFoundException;
 
-    Incident getIncidentById(Long id) throws IncidentNotFoundException;
+    Incident getIncidentById(Long id, String email) throws IncidentNotFoundException, UserNotFoundException;
 
     List<Category> getCategories();
 
@@ -28,8 +28,12 @@ public interface IIncidentService {
 
     List<Comment> getComments(Long idIncident) throws IncidentNotFoundException;
 
-    Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException;
+    Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, InvalidVoteException;
 
     void unvote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, VoteNotFoundException;
+
+    List<EIncidentState> getStates();
+
+    void changeState(Long id, String state) throws IncidentNotFoundException;
 
 }

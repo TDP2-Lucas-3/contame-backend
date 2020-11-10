@@ -1,9 +1,7 @@
 package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.User;
-import com.lucas3.contanos.model.exception.FailedToLoadImageException;
-import com.lucas3.contanos.model.exception.InvalidLoginException;
-import com.lucas3.contanos.model.exception.UserNotFoundException;
+import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.request.LoginGoogleRequest;
 import com.lucas3.contanos.model.request.LoginRequest;
 import com.lucas3.contanos.model.request.RegisterRequest;
@@ -18,7 +16,7 @@ import java.util.List;
 
 public interface IUserService {
 
-    ResponseEntity<?> registerUser(RegisterRequest registerRequest) throws FailedToLoadImageException;
+    ResponseEntity<?> registerUser(RegisterRequest registerRequest) throws FailedToLoadImageException, InvalidPasswordException, EmailTakenException;
 
     ResponseEntity<?> authenticateUser(LoginRequest loginRequest);
 

@@ -10,9 +10,7 @@ import com.lucas3.contanos.entities.ERole;
 import com.lucas3.contanos.entities.EUserState;
 import com.lucas3.contanos.entities.Profile;
 import com.lucas3.contanos.entities.User;
-import com.lucas3.contanos.model.exception.FailedToLoadImageException;
-import com.lucas3.contanos.model.exception.InvalidLoginException;
-import com.lucas3.contanos.model.exception.UserNotFoundException;
+import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.request.LoginGoogleRequest;
 import com.lucas3.contanos.model.request.UpdateUserRequest;
 import com.lucas3.contanos.model.response.LoginGoogleResponse;
@@ -40,6 +38,8 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -68,6 +68,9 @@ public class UserService implements IUserService{
 
     @Value("${contame.app.google.client.id}")
     private String CLIENT_ID_GOOGLE;
+
+    private static  String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$";
+
 
     @Override
     public ResponseEntity<?> authenticateUser(LoginRequest loginRequest) {
@@ -199,31 +202,28 @@ public class UserService implements IUserService{
 
     @Override
     @Transactional
-    public ResponseEntity<?> registerUser(RegisterRequest signUpRequest) throws FailedToLoadImageException {
+    public ResponseEntity<?> registerUser(RegisterRequest signUpRequest) throws InvalidPasswordException, EmailTakenException {
 
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new StandResponse("Error: Email is already in use!"));
-        }
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) throw new EmailTakenException();
+        if(!isValidPassword(signUpRequest.getPassword())) throw new InvalidPasswordException();
 
-        String base64photo = "";
-        if(signUpRequest.getPhoto() != null){
-           base64photo =  imgbbService.uploadImgToImgbb(signUpRequest.getPhoto());
-        }
-
-        // Create new user's account
         User user = new User(signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
         user.setUserState(EUserState.ACTIVO);
         userRepository.save(user);
 
-        Profile profile = new Profile(signUpRequest.getName(), signUpRequest.getSurname(),base64photo);
+        Profile profile = new Profile(signUpRequest.getName(), signUpRequest.getSurname());
         profileRepository.save(profile);
         user.setProfile(profile);
         user.setRol(ERole.ROLE_ADMIN);
 
-        return ResponseEntity.ok(new StandResponse("User registered successfully!"));
+        return ResponseEntity.ok(new StandResponse("Registro exitoso!"));
+    }
+
+    private boolean isValidPassword(String password) {
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(password);
+        return m.matches();
     }
 
 

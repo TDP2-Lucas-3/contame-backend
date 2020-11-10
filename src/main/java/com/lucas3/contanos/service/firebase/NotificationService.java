@@ -43,10 +43,13 @@ public class NotificationService {
         try{
             Map<String,String> data = new HashMap<>();
             PushNotificationRequest request = new PushNotificationRequest();
-            request.setTitle("Contame - Voto");
+            request.setTitle(incident.getUser().getProfile().getName());
             request.setMessage(getMessageVote(voter,incident));
             request.setToken(incident.getUser().getFCMToken());
             data.put("photo", voter.getProfile().getPhoto());
+            data.put("voterName", voter.getProfile().getName() + " " + voter.getProfile().getSurename());
+            data.put("userName", incident.getUser().getProfile().getName());
+            data.put("incident", incident.getTitle());
             fcmService.sendMessageToToken(data,request);
         }catch(Exception e){
             e.printStackTrace();
@@ -56,6 +59,28 @@ public class NotificationService {
     private String getMessageVote(User voter, Incident incident){
         String voterName = voter.getProfile().getName() + " " + voter.getProfile().getSurename();
         String incidentTitle = incident.getTitle();
-        return voterName + " apoyo tu reporte " + incidentTitle;
+        String msg = voterName + " indicó que le gusta tu incidencia " + incidentTitle;
+        return msg;
+    }
+
+    public void sendChangeStateNotification(Incident incident){
+        try{
+            Map<String,String> data = new HashMap<>();
+            PushNotificationRequest request = new PushNotificationRequest();
+            request.setTitle(incident.getTitle());
+            request.setMessage(getChangeStateMessage(incident));
+            request.setToken(incident.getUser().getFCMToken());
+            data.put("incident", incident.getTitle());
+            data.put("state", incident.getState().toString());
+            fcmService.sendMessageToToken(data,request);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private String getChangeStateMessage(Incident incident){
+        String incidentTitle = incident.getTitle();
+        String msg = "Tu incidencia "+ incidentTitle +" cambio de estado a " + incident.getState().toString();
+        return msg;
     }
 }
