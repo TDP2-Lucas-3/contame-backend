@@ -3,13 +3,10 @@ package com.lucas3.contanos.service;
 import com.lucas3.contanos.entities.Category;
 import com.lucas3.contanos.entities.EIncidentState;
 import com.lucas3.contanos.entities.Incident;
-import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
-import com.lucas3.contanos.model.exception.FailedToLoadImageException;
-import com.lucas3.contanos.model.exception.UserNotFoundException;
+import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
-import com.lucas3.contanos.model.exception.IncidentNotFoundException;
 import com.lucas3.contanos.model.request.RegisterRequest;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
@@ -35,8 +32,8 @@ public class IncidentServiceTests {
 
 
     @Test
-    public void createTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void createTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
         IncidentRequest request = new IncidentRequest("Prueba", 1L);
@@ -49,8 +46,8 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void findAllTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void findAllTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
         IncidentRequest request = new IncidentRequest("Prueba", 1L);
@@ -62,8 +59,8 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void findAllTestEmptyFilters() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void findAllTestEmptyFilters() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
         IncidentRequest request = new IncidentRequest("Prueba", 1L);
@@ -76,8 +73,8 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void findAllTestCategory() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void findAllTestCategory() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
         Category category2 = incidentService.createCategory(new CategoryRequest("ROBO2", "Incidencia de robo2"));
@@ -91,8 +88,8 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void findNoneTestCategory() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void findNoneTestCategory() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
         Category category2 = incidentService.createCategory(new CategoryRequest("ROBO2", "Incidencia de robo2"));
@@ -106,8 +103,8 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void findByIdTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void findByIdTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
         Incident result = null;
@@ -153,8 +150,8 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void changeStateTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, IncidentNotFoundException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void changeStateTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, IncidentNotFoundException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
         Incident result = null;
