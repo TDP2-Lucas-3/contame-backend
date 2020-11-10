@@ -4,7 +4,9 @@ import com.lucas3.contanos.entities.Category;
 import com.lucas3.contanos.entities.ERole;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.entities.User;
+import com.lucas3.contanos.model.exception.EmailTakenException;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
+import com.lucas3.contanos.model.exception.InvalidPasswordException;
 import com.lucas3.contanos.model.exception.UserNotFoundException;
 import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
@@ -32,8 +34,8 @@ public class UserServiceTests {
     private UserService userService;
 
     @Test
-    public void registerBackofficeTest() throws FailedToLoadImageException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void registerBackofficeTest() throws FailedToLoadImageException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
 
         UserResponse user = userService.getUserById(1L);
@@ -43,16 +45,16 @@ public class UserServiceTests {
     }
 
     @Test
-    public void noBackofficeUsersTest() throws FailedToLoadImageException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void noBackofficeUsersTest() throws FailedToLoadImageException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         List<UserResponse> users = userService.getAllUsers();
         Assert.assertTrue(users.isEmpty());
     }
 
     @Test
-    public void getUserByEmail() throws FailedToLoadImageException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void getUserByEmail() throws FailedToLoadImageException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         UserResponse response = userService.getUserByEmail("prueba@prueba.com");
         Assert.assertEquals(response.getEmail(), "prueba@prueba.com");
@@ -60,8 +62,8 @@ public class UserServiceTests {
     }
 
     @Test
-    public void updateUserTest() throws FailedToLoadImageException, UserNotFoundException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void updateUserTest() throws FailedToLoadImageException, UserNotFoundException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         register.setName("Usuario");
         register.setSurname("Prueba1");
         userService.registerUser(register);
@@ -81,8 +83,8 @@ public class UserServiceTests {
 
 
     @Test
-    public void updateUserWithoutProfileTest() throws FailedToLoadImageException, UserNotFoundException {
-        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "prueba123");
+    public void updateUserWithoutProfileTest() throws FailedToLoadImageException, UserNotFoundException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
 
         UpdateUserRequest update = new UpdateUserRequest();
