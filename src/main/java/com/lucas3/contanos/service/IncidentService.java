@@ -201,6 +201,7 @@ public class IncidentService implements IIncidentService {
         if(!incident.isPresent()) throw new IncidentNotFoundException();
         EIncidentState newState = EIncidentState.valueOf(state);
         incident.get().setState(newState);
+        incident.get().setUpdateDate(new Date());
         incidentRepository.save(incident.get());
         notificationService.sendChangeStateNotification(incident.get());
     }
