@@ -50,6 +50,7 @@ public class NotificationService {
             data.put("voterName", voter.getProfile().getName() + " " + voter.getProfile().getSurename());
             data.put("userName", incident.getUser().getProfile().getName());
             data.put("incident", incident.getTitle());
+            data.put("id", incident.getId().toString());
             fcmService.sendMessageToToken(data,request);
         }catch(Exception e){
             e.printStackTrace();
