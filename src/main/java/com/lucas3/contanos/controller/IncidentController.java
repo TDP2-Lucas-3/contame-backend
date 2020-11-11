@@ -124,7 +124,7 @@ public class IncidentController {
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
         } catch (InvalidVoteException e) {
-            return ResponseEntity.badRequest().body(new StandResponse("No podes votar tu propia incidencia"));
+            return ResponseEntity.badRequest().body(new StandResponse("No podes votar por tu propia incidencia."));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(new StandResponse("Error creando el voto"));
         }

@@ -43,13 +43,14 @@ public class NotificationService {
         try{
             Map<String,String> data = new HashMap<>();
             PushNotificationRequest request = new PushNotificationRequest();
-            request.setTitle(incident.getUser().getProfile().getName());
+            request.setTitle(incident.getUser().getProfile().getName()+" " + incident.getUser().getProfile().getSurename());
             request.setMessage(getMessageVote(voter,incident));
             request.setToken(incident.getUser().getFCMToken());
             data.put("photo", voter.getProfile().getPhoto());
             data.put("voterName", voter.getProfile().getName() + " " + voter.getProfile().getSurename());
             data.put("userName", incident.getUser().getProfile().getName());
             data.put("incident", incident.getTitle());
+            data.put("id", incident.getId().toString());
             fcmService.sendMessageToToken(data,request);
         }catch(Exception e){
             e.printStackTrace();

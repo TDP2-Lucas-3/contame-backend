@@ -32,7 +32,6 @@ public class Incident {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Category category;
 
-    @JsonIgnore
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private User user;
 
