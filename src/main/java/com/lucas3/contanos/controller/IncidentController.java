@@ -6,6 +6,7 @@ import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.CategoryRequest;
+import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.response.StandResponse;
@@ -225,15 +226,18 @@ public class IncidentController {
         return incidentService.getStates();
     }
 
-    @PutMapping("/{id}/state/{state}")
-    public ResponseEntity<?>  changeStates(@PathVariable Long id, @PathVariable String state){
+    @PostMapping("/{id}/state")
+    public ResponseEntity<?>  changeStates(@RequestHeader("Authorization") String fullToken,@PathVariable Long id, @RequestBody ChangeStateRequest request){
         try{
-            incidentService.changeState(id,state);
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            incidentService.changeState(id,request, email);
             return ResponseEntity.ok("El incidente se actualizo correctamente");
         } catch (IncidentNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente no existe - ID INVALIDO"));
         } catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(new StandResponse("Estado invalido"));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario administrador existe"));
         }
     }
 

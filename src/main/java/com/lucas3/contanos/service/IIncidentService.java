@@ -4,6 +4,7 @@ import com.lucas3.contanos.entities.*;
 import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.CategoryRequest;
+import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 
@@ -40,7 +41,7 @@ public interface IIncidentService {
 
     List<EIncidentState> getStates();
 
-    void changeState(Long id, String state) throws IncidentNotFoundException;
+    void changeState(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, StateNotFoundException, UserNotFoundException;
 
     void setFather(Long idSon, Long idFather) throws IncidentSonNotFoundException, IncidentFatherNotFoundException, SonHaveSonsException;
 

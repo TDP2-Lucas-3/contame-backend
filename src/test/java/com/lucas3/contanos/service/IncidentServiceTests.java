@@ -6,6 +6,7 @@ import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.CategoryRequest;
+import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.request.RegisterRequest;
 import org.junit.Assert;
@@ -151,14 +152,15 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void changeStateTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, IncidentNotFoundException, EmailTakenException, InvalidPasswordException {
+    public void changeStateTest() throws FailedToLoadImageException, FailedReverseGeocodeException, IncidentNotFoundException, EmailTakenException, InvalidPasswordException, StateNotFoundException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
         Incident result = null;
         IncidentRequest request = new IncidentRequest("Prueba", 1L);
         incidentService.createIncident(request,"prueba@prueba.com");
-        incidentService.changeState(1L, EIncidentState.RECHAZADO.toString());
+        ChangeStateRequest changeRequest = new ChangeStateRequest(EIncidentState.RECHAZADO.toString(), "Hola esto es un comentario");
+        incidentService.changeState(1L,changeRequest,"prueba@prueba.com");
         try{
             result = incidentService.getIncidentById(1L,"prueba@prueba.com");
         } catch (IncidentNotFoundException | UserNotFoundException e) {
@@ -168,7 +170,7 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void setFatherTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+    public void setFatherTest() throws FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
