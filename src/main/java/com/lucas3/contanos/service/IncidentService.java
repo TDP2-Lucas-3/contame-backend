@@ -215,9 +215,7 @@ public class IncidentService implements IIncidentService {
         if(user.get().getEmail().equals(incident.get().getUser().getEmail())) throw new InvalidVoteException();
 
         Vote vote = new Vote(user.get(),incident.get());
-
         voteRepository.save(vote);
-        notificationService.sendVoteNotification(user.get(),incident.get());
         return vote;
     }
 
