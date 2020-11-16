@@ -35,6 +35,10 @@ public class Incident {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private User user;
 
+    @JsonIgnore
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    private Incident father;
+
 
 
     private Date creationDate;
@@ -198,5 +202,13 @@ public class Incident {
 
     public void setHood(String hood) {
         this.hood = hood;
+    }
+
+    public Incident getFather() {
+        return father;
+    }
+
+    public void setFather(Incident father) {
+        this.father = father;
     }
 }

@@ -138,7 +138,7 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public Comment createComment(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException {
+    public Comment createCommentUser(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException {
         Optional<User> user = userRepository.findByEmail(email);
         Optional<Incident> incident = incidentRepository.findById(idIncident);
 
@@ -148,6 +148,34 @@ public class IncidentService implements IIncidentService {
         Comment comment = new Comment(request.getComment(),user.get(),incident.get());
         comment.setCategory(ECommentCategory.PUBLIC);
         commentRepository.save(comment);
+        notificationService.sendCommentUserNotification(user.get(),incident.get());
+        return comment;
+    }
+
+    @Override
+    public Comment createCommentAdmin(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, CategoryNotFoundException, InvalidCategoryException {
+        ECommentCategory category = null;
+
+        Optional<User> user = userRepository.findByEmail(email);
+        if(!user.isPresent()) throw new UserNotFoundException();
+
+        Optional<Incident> incident = incidentRepository.findById(idIncident);
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        if(request.getCategory() == null) throw new CategoryNotFoundException();
+        try{
+            category = ECommentCategory.valueOf(request.getCategory().toUpperCase());
+        }catch(IllegalArgumentException e){
+            throw new InvalidCategoryException();
+        }
+
+        Comment comment = new Comment(request.getComment(),user.get(),incident.get());
+        comment.setCategory(category);
+        commentRepository.save(comment);
+
+        if (category.equals(ECommentCategory.PUBLIC)){
+            notificationService.sendCommentAdminNotification(incident.get());
+        }
         return comment;
     }
 
@@ -157,6 +185,22 @@ public class IncidentService implements IIncidentService {
         if(!incident.isPresent()) throw new IncidentNotFoundException();
 
         return commentRepository.findAllByIncident(incident.get());
+    }
+
+    @Override
+    public List<Comment> getPublicComments(Long idIncident) throws IncidentNotFoundException {
+        Optional<Incident> incident = incidentRepository.findById(idIncident);
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        return commentRepository.findAllByIncidentAndCategory(incident.get(), ECommentCategory.PUBLIC);
+    }
+
+    @Override
+    public List<Comment> getPrivateComments(Long idIncident) throws IncidentNotFoundException {
+        Optional<Incident> incident = incidentRepository.findById(idIncident);
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+
+        return commentRepository.findAllByIncidentAndCategory(incident.get(), ECommentCategory.PRIVATE);
     }
 
     @Override
@@ -206,6 +250,48 @@ public class IncidentService implements IIncidentService {
         incident.get().setUpdateDate(new Date());
         incidentRepository.save(incident.get());
         notificationService.sendChangeStateNotification(incident.get());
+    }
+
+    @Override
+    public void setFather(Long idSon, Long idFather) throws IncidentSonNotFoundException, IncidentFatherNotFoundException, SonHaveSonsException {
+        Optional<Incident> son = incidentRepository.findById(idSon);
+        if(!son.isPresent()) throw new IncidentSonNotFoundException();
+
+        Optional<Incident> father= incidentRepository.findById(idFather);
+        if(!father.isPresent()) throw new IncidentFatherNotFoundException();
+
+        if(!sonHaveNoSons(son.get())) throw new SonHaveSonsException();
+
+        son.get().setFather(father.get());
+        incidentRepository.save(son.get());
+
+    }
+
+    @Override
+    public Incident getFather(Long id) throws IncidentSonNotFoundException, IncidentFatherNotFoundException {
+        Optional<Incident> son = incidentRepository.findById(id);
+        if(!son.isPresent()) throw new IncidentSonNotFoundException();
+
+        if(son.get().getFather() == null) throw new IncidentFatherNotFoundException();
+
+        return son.get().getFather();
+    }
+
+    @Override
+    public List<Incident> getSons(Long id) throws IncidentFatherNotFoundException, IncidentSonNotFoundException {
+        Optional<Incident> father = incidentRepository.findById(id);
+        if(!father.isPresent()) throw new IncidentFatherNotFoundException();
+
+        List<Incident> sons = incidentRepository.findAllByFather(father.get());
+        if( sons.isEmpty()) throw new IncidentSonNotFoundException();
+
+        return sons;
+
+    }
+
+    private boolean sonHaveNoSons(Incident son) {
+        List<Incident> sons = incidentRepository.findAllByFather(son);
+        return sons.isEmpty();
     }
 
 

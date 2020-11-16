@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 // Test del servicio de reportes
@@ -165,5 +166,53 @@ public class IncidentServiceTests {
         }
         Assert.assertEquals(result.getState(), EIncidentState.RECHAZADO);
     }
+
+    @Test
+    public void setFatherTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
+        userService.registerUser(register);
+        incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
+        Incident son = null;
+
+        IncidentRequest request = new IncidentRequest("Prueba", 1L);
+        IncidentRequest request2 = new IncidentRequest("Prueba2", 1L);
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request2,"prueba@prueba.com");
+
+        try{
+            incidentService.setFather(1L,2L);
+            son = incidentService.getIncidentById(1L,"prueba@prueba.com");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(son.getFather());
+        Assert.assertTrue(son.getFather().getId() == 2L);
+    }
+
+    @Test
+    public void getSonTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
+        userService.registerUser(register);
+        incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
+        Incident son = null;
+        List<Incident> sons = new ArrayList<>();
+
+        IncidentRequest request = new IncidentRequest("Prueba", 1L);
+        IncidentRequest request2 = new IncidentRequest("Prueba2", 1L);
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request2,"prueba@prueba.com");
+
+        try{
+            incidentService.setFather(1L,2L);
+            sons = incidentService.getSons(2L);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(sons);
+        Assert.assertTrue(sons.size() == 1);
+        Assert.assertTrue(1L == sons.get(0).getId());
+    }
+
+
 
 }
