@@ -35,7 +35,6 @@ public class Incident {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private User user;
 
-    @JsonIgnore
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
     private Incident father;
 
