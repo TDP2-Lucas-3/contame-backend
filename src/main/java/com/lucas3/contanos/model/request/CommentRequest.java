@@ -4,6 +4,8 @@ public class CommentRequest {
 
     String comment;
 
+    String category;
+
     public CommentRequest() {
     }
 
@@ -15,5 +17,11 @@ public class CommentRequest {
         this.comment = comment;
     }
 
+    public String getCategory() {
+        return category;
+    }
 
+    public void setCategory(String category) {
+        this.category = category;
+    }
 }

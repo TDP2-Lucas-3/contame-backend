@@ -24,9 +24,15 @@ public interface IIncidentService {
 
     Category createCategory(CategoryRequest request);
 
-    Comment createComment(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException;
+    Comment createCommentUser(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException;
+
+    Comment createCommentAdmin(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, CategoryNotFoundException, InvalidCategoryException;
 
     List<Comment> getComments(Long idIncident) throws IncidentNotFoundException;
+
+    List<Comment> getPublicComments(Long idIncident) throws IncidentNotFoundException;
+
+    List<Comment> getPrivateComments(Long idIncident) throws IncidentNotFoundException;
 
     Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, InvalidVoteException;
 
@@ -35,5 +41,11 @@ public interface IIncidentService {
     List<EIncidentState> getStates();
 
     void changeState(Long id, String state) throws IncidentNotFoundException;
+
+    void setFather(Long idSon, Long idFather) throws IncidentSonNotFoundException, IncidentFatherNotFoundException, SonHaveSonsException;
+
+    Incident getFather(Long id) throws IncidentSonNotFoundException, IncidentFatherNotFoundException;
+
+    List<Incident> getSons(Long id) throws IncidentFatherNotFoundException, IncidentSonNotFoundException;
 
 }

@@ -1,7 +1,5 @@
 package com.lucas3.contanos.repository;
 
-
-import com.lucas3.contanos.entities.Category;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.entities.User;
 import org.springframework.data.repository.CrudRepository;
@@ -17,4 +15,6 @@ public interface IncidentRepository extends CrudRepository<Incident, Long>, Inci
     List<Incident> findAllByUser(User user);
 
     Integer countByUser(User user);
+
+    List<Incident> findAllByFather(Incident father);
 }

@@ -97,18 +97,73 @@ public class IncidentController {
         }
     }
 
-    @PostMapping("/{id}/comment")
-    public ResponseEntity<?>  createComment(@PathVariable Long id,@RequestHeader("Authorization") String fullToken, @RequestBody CommentRequest request)  {
+    @PostMapping("/{id}/comment/user")
+    public ResponseEntity<?>  createCommentMobile(@PathVariable Long id,@RequestHeader("Authorization") String fullToken, @RequestBody CommentRequest request)  {
         try{
             String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
             validateComment(request);
-            return ResponseEntity.ok(incidentService.createComment(request,id,email));
+            return ResponseEntity.ok(incidentService.createCommentUser(request,id,email));
         } catch (InvalidCommentException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El comentario esta vacio"));
         } catch (IncidentNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
+        }
+    }
+
+    @PostMapping("/{id}/comment/admin")
+    public ResponseEntity<?>  createCommentBackoffice(@PathVariable Long id,@RequestHeader("Authorization") String fullToken, @RequestBody CommentRequest request)  {
+        try{
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            validateComment(request);
+            return ResponseEntity.ok(incidentService.createCommentAdmin(request,id,email));
+        } catch (InvalidCommentException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El comentario esta vacio"));
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe"));
+        } catch (InvalidCategoryException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("La categoria debe ser PRIVATE o PUBLIC, enviaste: " + request.getCategory()));
+        } catch (CategoryNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("Los comentarios deben tener una categoria. category : PUBLIC/PRIVATE"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
+        }
+    }
+
+
+    @GetMapping("/{id}/comment")
+    public ResponseEntity<?>  getComments(@PathVariable Long id)  {
+        try{
+            return ResponseEntity.ok(incidentService.getComments(id));
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
+        }
+    }
+
+    @GetMapping("/{id}/comment/public")
+    public ResponseEntity<?>  getPublicComment(@PathVariable Long id)  {
+        try{
+            return ResponseEntity.ok(incidentService.getComments(id));
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
+        }
+    }
+
+    @GetMapping("/{id}/comment/private")
+    public ResponseEntity<?>  getPrivateComments(@PathVariable Long id)  {
+        try{
+            return ResponseEntity.ok(incidentService.getComments(id));
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
         }
@@ -147,16 +202,6 @@ public class IncidentController {
         }
     }
 
-    @GetMapping("/{id}/comment")
-    public ResponseEntity<?>  getComments(@PathVariable Long id)  {
-        try{
-            return ResponseEntity.ok(incidentService.getComments(id));
-        } catch (IncidentNotFoundException e) {
-            return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(new StandResponse("Error creando el comentario"));
-        }
-    }
 
     @GetMapping("/categories")
     public List<Category> getCategories(){
@@ -189,6 +234,42 @@ public class IncidentController {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente no existe - ID INVALIDO"));
         } catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(new StandResponse("Estado invalido"));
+        }
+    }
+
+    @PostMapping("/{idSon}/father/{idFather}")
+    public ResponseEntity<?> setFather(@PathVariable Long idSon, @PathVariable Long idFather){
+        try{
+            incidentService.setFather(idSon,idFather);
+        } catch (IncidentSonNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente hijo no existe ID: " + idSon));
+        } catch (SonHaveSonsException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente hijo tiene hijos ID: " + idSon));
+        } catch (IncidentFatherNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente padre no existe ID: " + idFather));
+        }
+        return ResponseEntity.ok("Los incidentes fueron agrupados correctamente");
+    }
+
+    @GetMapping("/{id}/father")
+    public ResponseEntity<?> getFather(@PathVariable Long id){
+        try{
+            return ResponseEntity.ok(incidentService.getFather(id));
+        } catch (IncidentSonNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente no existe ID: " + id));
+        } catch (IncidentFatherNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente no tiene padre"));
+        }
+    }
+
+    @GetMapping("/{id}/son")
+    public ResponseEntity<?> getSons(@PathVariable Long id){
+        try{
+            return ResponseEntity.ok(incidentService.getSons(id));
+        } catch (IncidentSonNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente no tiene hijos"));
+        } catch (IncidentFatherNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente no existe ID: " + id));
         }
     }
 
