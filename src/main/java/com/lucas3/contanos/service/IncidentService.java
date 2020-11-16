@@ -5,6 +5,7 @@ import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.firebase.PushNotificationRequest;
 import com.lucas3.contanos.model.request.CategoryRequest;
+import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.response.geocoding.LocationResponse;
@@ -242,14 +243,31 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public void changeState(Long id, String state) throws IncidentNotFoundException{
+    public void changeState(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, UserNotFoundException {
         Optional<Incident> incident = incidentRepository.findById(id);
         if(!incident.isPresent()) throw new IncidentNotFoundException();
-        EIncidentState newState = EIncidentState.valueOf(state);
+
+        EIncidentState newState = EIncidentState.valueOf(request.getState());
+
+        if(newState.equals(EIncidentState.ARCHIVADO)){
+            incident.get().setCompleteDate(new Date());
+        }
+
         incident.get().setState(newState);
         incident.get().setUpdateDate(new Date());
+        postCommentAdmin(request.getComment(),email, incident.get());
         incidentRepository.save(incident.get());
         notificationService.sendChangeStateNotification(incident.get());
+    }
+
+    private void postCommentAdmin(String commentary, String email, Incident incident) throws UserNotFoundException {
+
+        Optional<User> user = userRepository.findByEmail(email);
+        if(!user.isPresent()) throw new UserNotFoundException();
+
+        Comment comment = new Comment(commentary,user.get(),incident);
+        comment.setCategory(ECommentCategory.PRIVATE);
+        commentRepository.save(comment);
     }
 
     @Override
