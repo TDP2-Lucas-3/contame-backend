@@ -25,6 +25,9 @@ public class Comment {
 
     private ECommentCategory category;
 
+    @Transient
+    private boolean isOwner;
+
     public Comment() {
     }
 
@@ -74,5 +77,13 @@ public class Comment {
 
     public void setCategory(ECommentCategory category) {
         this.category = category;
+    }
+
+    public boolean isOwner() {
+        return isOwner;
+    }
+
+    public void setOwner(boolean owner) {
+        isOwner = owner;
     }
 }

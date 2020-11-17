@@ -34,7 +34,7 @@ public class IncidentServiceTests {
 
 
     @Test
-    public void createTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+    public void createTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
@@ -48,7 +48,7 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void findAllTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+    public void findAllTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
@@ -105,7 +105,7 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void findByIdTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+    public void findByIdTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
@@ -170,7 +170,7 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void setFatherTest() throws FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+    public void setFatherTest() throws FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
@@ -192,7 +192,7 @@ public class IncidentServiceTests {
     }
 
     @Test
-    public void getSonTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException {
+    public void getSonTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));

@@ -138,9 +138,10 @@ public class IncidentController {
 
 
     @GetMapping("/{id}/comment")
-    public ResponseEntity<?>  getComments(@PathVariable Long id)  {
+    public ResponseEntity<?>  getComments(@PathVariable Long id, @RequestHeader("Authorization") String fullToken)  {
         try{
-            return ResponseEntity.ok(incidentService.getComments(id));
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(incidentService.getComments(id, email));
         } catch (IncidentNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         }catch (Exception e){
@@ -149,9 +150,10 @@ public class IncidentController {
     }
 
     @GetMapping("/{id}/comment/public")
-    public ResponseEntity<?>  getPublicComment(@PathVariable Long id)  {
+    public ResponseEntity<?>  getPublicComment(@PathVariable Long id, @RequestHeader("Authorization") String fullToken)  {
         try{
-            return ResponseEntity.ok(incidentService.getComments(id));
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(incidentService.getPublicComments(id, email));
         } catch (IncidentNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         }catch (Exception e){
@@ -160,9 +162,10 @@ public class IncidentController {
     }
 
     @GetMapping("/{id}/comment/private")
-    public ResponseEntity<?>  getPrivateComments(@PathVariable Long id)  {
+    public ResponseEntity<?>  getPrivateComments(@PathVariable Long id, @RequestHeader("Authorization") String fullToken)  {
         try{
-            return ResponseEntity.ok(incidentService.getComments(id));
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            return ResponseEntity.ok(incidentService.getPrivateComments(id, email));
         } catch (IncidentNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente solicitado no existe"));
         }catch (Exception e){
