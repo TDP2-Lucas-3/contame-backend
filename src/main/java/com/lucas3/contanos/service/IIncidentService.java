@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface IIncidentService {
 
-    Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException;
+    Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException;
 
     List<Incident> getAllIncidents();
     List<Incident> getAllIncidents(String email, IncidentFilter filter) throws UserNotFoundException;
@@ -29,11 +29,11 @@ public interface IIncidentService {
 
     Comment createCommentAdmin(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, CategoryNotFoundException, InvalidCategoryException;
 
-    List<Comment> getComments(Long idIncident) throws IncidentNotFoundException;
+    List<Comment> getComments(Long idIncident, String email) throws IncidentNotFoundException, UserNotFoundException;
 
-    List<Comment> getPublicComments(Long idIncident) throws IncidentNotFoundException;
+    List<Comment> getPublicComments(Long idIncident, String email) throws IncidentNotFoundException, UserNotFoundException;
 
-    List<Comment> getPrivateComments(Long idIncident) throws IncidentNotFoundException;
+    List<Comment> getPrivateComments(Long idIncident, String email) throws IncidentNotFoundException;
 
     Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, InvalidVoteException;
 

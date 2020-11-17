@@ -47,7 +47,7 @@ public class IncidentService implements IIncidentService {
 
 
     @Override
-    public Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException {
+    public Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException {
         Optional<Category> category = categoryRepository.findById(request.getCategory());
 
         Incident incident = new Incident(request.getTitle(),category.get(),request.getDescription(), request.getLat(), request.getLon());
@@ -64,7 +64,7 @@ public class IncidentService implements IIncidentService {
             incident.setLocation(location.getAddress());
             incident.setHood(location.getHood());
         }
-        User user = userRepository.findByEmail(email).get();
+        User user = verifyUser(email);
         incident.setUser(user);
         incident.setState(EIncidentState.REPORTADO);
         incidentRepository.save(incident);
@@ -77,15 +77,12 @@ public class IncidentService implements IIncidentService {
 
     @Override
     public List<Incident> getAllIncidents(String email, IncidentFilter filter) throws UserNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-
-        if(!user.isPresent()) throw new UserNotFoundException();
-
+        User user = verifyUser(email);
         List<Incident> incidents = incidentRepository.findAll(filter);
 
         for (Incident incident: incidents) {
             incident.setVotes(voteRepository.countByIncident(incident));
-            incident.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),incident).isPresent());
+            incident.setVoteByUser(voteRepository.findByUserAndIncident(user,incident).isPresent());
         }
 
         return incidents;
@@ -98,32 +95,25 @@ public class IncidentService implements IIncidentService {
 
     @Override
     public List<Incident> getAllIncidentsByUser(String email) throws UserNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-
-        if(!user.isPresent()) throw new UserNotFoundException();
+        User user = verifyUser(email);
 
         List<Incident> incidents = incidentRepository.findAllByUser(userRepository.findByEmail(email).get());
 
         for (Incident incident: incidents) {
             incident.setVotes(voteRepository.countByIncident(incident));
-            incident.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),incident).isPresent());
+            incident.setVoteByUser(voteRepository.findByUserAndIncident(user,incident).isPresent());
         }
         return incidents;
     }
 
     @Override
     public Incident getIncidentById(Long id, String email) throws IncidentNotFoundException, UserNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-        if(!user.isPresent()) throw new UserNotFoundException();
+        User user = verifyUser(email);
+        Incident incident = verifyIncident(id);
 
-        Optional<Incident> incident = incidentRepository.findById(id);
-        if(incident.isPresent()){
-            Incident inc = incident.get();
-            inc.setVotes(voteRepository.countByIncident(inc));
-            inc.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),inc).isPresent());
-            return inc;
-        }
-        throw new IncidentNotFoundException("Reporte inexistente");
+        incident.setVotes(voteRepository.countByIncident(incident));
+        incident.setVoteByUser(voteRepository.findByUserAndIncident(user,incident).isPresent());
+        return incident;
     }
 
     @Override
@@ -140,16 +130,13 @@ public class IncidentService implements IIncidentService {
 
     @Override
     public Comment createCommentUser(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
+        User user = verifyUser(email);
+        Incident incident = verifyIncident(idIncident);
 
-        if(!user.isPresent()) throw new UserNotFoundException();
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
-
-        Comment comment = new Comment(request.getComment(),user.get(),incident.get());
+        Comment comment = new Comment(request.getComment(),user,incident);
         comment.setCategory(ECommentCategory.PUBLIC);
         commentRepository.save(comment);
-        notificationService.sendCommentUserNotification(user.get(),incident.get());
+        notificationService.sendCommentUserNotification(user,incident);
         return comment;
     }
 
@@ -157,11 +144,9 @@ public class IncidentService implements IIncidentService {
     public Comment createCommentAdmin(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, CategoryNotFoundException, InvalidCategoryException {
         ECommentCategory category = null;
 
-        Optional<User> user = userRepository.findByEmail(email);
-        if(!user.isPresent()) throw new UserNotFoundException();
+        User user = verifyUser(email);
 
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
+        Incident incident = verifyIncident(idIncident);
 
         if(request.getCategory() == null) throw new CategoryNotFoundException();
         try{
@@ -170,66 +155,76 @@ public class IncidentService implements IIncidentService {
             throw new InvalidCategoryException();
         }
 
-        Comment comment = new Comment(request.getComment(),user.get(),incident.get());
+        Comment comment = new Comment(request.getComment(),user,incident);
         comment.setCategory(category);
         commentRepository.save(comment);
 
         if (category.equals(ECommentCategory.PUBLIC)){
-            notificationService.sendCommentAdminNotification(incident.get());
+            notificationService.sendCommentAdminNotification(incident);
         }
         return comment;
     }
 
     @Override
-    public List<Comment> getComments(Long idIncident) throws IncidentNotFoundException {
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
+    public List<Comment> getComments(Long idIncident, String email) throws IncidentNotFoundException, UserNotFoundException {
 
-        return commentRepository.findAllByIncident(incident.get());
+        User user = verifyUser(email);
+        Incident incident = verifyIncident(idIncident);
+
+       List<Comment> comments = commentRepository.findAllByIncident(incident);
+        for (Comment comment: comments) {
+            if(comment.getUser().getEmail().equals(user.getEmail())){
+                comment.setOwner(true);
+            }else{
+                comment.setOwner(false);
+            }
+        }
+        return comments;
     }
 
     @Override
-    public List<Comment> getPublicComments(Long idIncident) throws IncidentNotFoundException {
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
+    public List<Comment> getPublicComments(Long idIncident, String email) throws IncidentNotFoundException, UserNotFoundException {
+        Incident incident = verifyIncident(idIncident);
+        User user = verifyUser(email);
 
-        return commentRepository.findAllByIncidentAndCategory(incident.get(), ECommentCategory.PUBLIC);
+        List<Comment> comments = commentRepository.findAllByIncidentAndCategory(incident, ECommentCategory.PUBLIC);
+        for (Comment comment: comments) {
+            if(comment.getUser().getEmail().equals(user.getEmail())){
+                comment.setOwner(true);
+            }else{
+                comment.setOwner(false);
+            }
+        }
+        return comments;
     }
 
     @Override
-    public List<Comment> getPrivateComments(Long idIncident) throws IncidentNotFoundException {
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
-
-        return commentRepository.findAllByIncidentAndCategory(incident.get(), ECommentCategory.PRIVATE);
+    public List<Comment> getPrivateComments(Long idIncident, String email) throws IncidentNotFoundException {
+        Incident incident = verifyIncident(idIncident);
+        return commentRepository.findAllByIncidentAndCategory(incident, ECommentCategory.PRIVATE);
     }
 
     @Override
     public Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, InvalidVoteException {
-        Optional<User> user = userRepository.findByEmail(email);
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
 
-        if(!user.isPresent()) throw new UserNotFoundException();
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
+        User user = verifyUser(email);
 
-        if(user.get().getEmail().equals(incident.get().getUser().getEmail())) throw new InvalidVoteException();
+        Incident incident = verifyIncident(idIncident);
 
-        Vote vote = new Vote(user.get(),incident.get());
+        if(user.getEmail().equals(incident.getUser().getEmail())) throw new InvalidVoteException();
 
+        Vote vote = new Vote(user,incident);
         voteRepository.save(vote);
-        notificationService.sendVoteNotification(user.get(),incident.get());
         return vote;
     }
 
     @Override
     public void unvote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, VoteNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
 
-        if(!user.isPresent()) throw new UserNotFoundException();
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
+        User user = verifyUser(email);
+        Incident incident = verifyIncident(idIncident);
 
-        Optional<Vote> vote = voteRepository.findByUserAndIncident(user.get(),incident.get());
+        Optional<Vote> vote = voteRepository.findByUserAndIncident(user,incident);
         if(vote.isPresent()){
             voteRepository.delete(vote.get());
         }else{
@@ -244,28 +239,24 @@ public class IncidentService implements IIncidentService {
 
     @Override
     public void changeState(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, UserNotFoundException {
-        Optional<Incident> incident = incidentRepository.findById(id);
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
+        Incident incident = verifyIncident(id);
 
         EIncidentState newState = EIncidentState.valueOf(request.getState());
 
         if(newState.equals(EIncidentState.ARCHIVADO)){
-            incident.get().setCompleteDate(new Date());
+            incident.setCompleteDate(new Date());
         }
 
-        incident.get().setState(newState);
-        incident.get().setUpdateDate(new Date());
-        postCommentAdmin(request.getComment(),email, incident.get());
-        incidentRepository.save(incident.get());
-        notificationService.sendChangeStateNotification(incident.get());
+        incident.setState(newState);
+        incident.setUpdateDate(new Date());
+        postCommentAdmin(request.getComment(),email, incident);
+        incidentRepository.save(incident);
+        notificationService.sendChangeStateNotification(incident);
     }
 
     private void postCommentAdmin(String commentary, String email, Incident incident) throws UserNotFoundException {
-
-        Optional<User> user = userRepository.findByEmail(email);
-        if(!user.isPresent()) throw new UserNotFoundException();
-
-        Comment comment = new Comment(commentary,user.get(),incident);
+        User user = verifyUser(email);
+        Comment comment = new Comment(commentary,user,incident);
         comment.setCategory(ECommentCategory.PRIVATE);
         commentRepository.save(comment);
     }
@@ -310,6 +301,18 @@ public class IncidentService implements IIncidentService {
     private boolean sonHaveNoSons(Incident son) {
         List<Incident> sons = incidentRepository.findAllByFather(son);
         return sons.isEmpty();
+    }
+
+    private User verifyUser(String email) throws UserNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+        if(!user.isPresent()) throw new UserNotFoundException();
+        return user.get();
+    }
+
+    private Incident verifyIncident(Long id) throws IncidentNotFoundException {
+        Optional<Incident> incident = incidentRepository.findById(id);
+        if(!incident.isPresent()) throw new IncidentNotFoundException();
+        return incident.get();
     }
 
 
