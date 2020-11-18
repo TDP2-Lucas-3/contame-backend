@@ -15,7 +15,6 @@ public class Comment {
     @Column
     private String comment;
 
-    @JsonIgnore
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private User user;
 
