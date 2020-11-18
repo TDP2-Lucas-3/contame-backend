@@ -113,7 +113,7 @@ public class IncidentService implements IIncidentService {
 
         incident.setVotes(voteRepository.countByIncident(incident));
         incident.setVoteByUser(voteRepository.findByUserAndIncident(user,incident).isPresent());
-        List<Comment> comments = new ArrayList<>(getPublicComments(id, email));
+        List<Comment> comments = new ArrayList<>(getPublicComments(id));
         incident.setComments(comments);
         return incident;
     }
@@ -168,14 +168,12 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public List<Comment> getComments(Long idIncident, String email) throws IncidentNotFoundException, UserNotFoundException {
-
-        User user = verifyUser(email);
+    public List<Comment> getComments(Long idIncident) throws IncidentNotFoundException, UserNotFoundException {
         Incident incident = verifyIncident(idIncident);
 
        List<Comment> comments = commentRepository.findAllByIncident(incident);
         for (Comment comment: comments) {
-            if(comment.getUser().getId().equals(user.getId())){
+            if(comment.getUser().getId().equals(incident.getUser().getId())){
                 comment.setOwner(true);
             }else{
                 comment.setOwner(false);
@@ -185,13 +183,12 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public List<Comment> getPublicComments(Long idIncident, String email) throws IncidentNotFoundException, UserNotFoundException {
+    public List<Comment> getPublicComments(Long idIncident) throws IncidentNotFoundException, UserNotFoundException {
         Incident incident = verifyIncident(idIncident);
-        User user = verifyUser(email);
 
         List<Comment> comments = commentRepository.findAllByIncidentAndCategory(incident, ECommentCategory.PUBLIC);
         for (Comment comment: comments) {
-            if(comment.getUser().getId().equals(user.getId())){
+            if(comment.getUser().getId().equals(incident.getUser().getId())){
                 comment.setOwner(true);
             }else{
                 comment.setOwner(false);
@@ -201,7 +198,7 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public List<Comment> getPrivateComments(Long idIncident, String email) throws IncidentNotFoundException {
+    public List<Comment> getPrivateComments(Long idIncident) throws IncidentNotFoundException {
         Incident incident = verifyIncident(idIncident);
         return commentRepository.findAllByIncidentAndCategory(incident, ECommentCategory.PRIVATE);
     }

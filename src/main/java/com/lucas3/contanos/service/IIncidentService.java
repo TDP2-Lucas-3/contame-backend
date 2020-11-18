@@ -29,11 +29,11 @@ public interface IIncidentService {
 
     Comment createCommentAdmin(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, CategoryNotFoundException, InvalidCategoryException;
 
-    List<Comment> getComments(Long idIncident, String email) throws IncidentNotFoundException, UserNotFoundException;
+    List<Comment> getComments(Long idIncident) throws IncidentNotFoundException, UserNotFoundException;
 
-    List<Comment> getPublicComments(Long idIncident, String email) throws IncidentNotFoundException, UserNotFoundException;
+    List<Comment> getPublicComments(Long idIncident) throws IncidentNotFoundException, UserNotFoundException;
 
-    List<Comment> getPrivateComments(Long idIncident, String email) throws IncidentNotFoundException;
+    List<Comment> getPrivateComments(Long idIncident) throws IncidentNotFoundException;
 
     Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, InvalidVoteException;
 
