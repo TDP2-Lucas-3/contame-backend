@@ -113,7 +113,8 @@ public class IncidentService implements IIncidentService {
 
         incident.setVotes(voteRepository.countByIncident(incident));
         incident.setVoteByUser(voteRepository.findByUserAndIncident(user,incident).isPresent());
-        incident.setComments(getComments(id,email));
+        List<Comment> comments = new ArrayList<>(getPublicComments(id, email));
+        incident.setComments(comments);
         return incident;
     }
 
@@ -174,7 +175,7 @@ public class IncidentService implements IIncidentService {
 
        List<Comment> comments = commentRepository.findAllByIncident(incident);
         for (Comment comment: comments) {
-            if(comment.getUser().getEmail().equals(user.getEmail())){
+            if(comment.getUser().getId().equals(user.getId())){
                 comment.setOwner(true);
             }else{
                 comment.setOwner(false);
@@ -190,7 +191,7 @@ public class IncidentService implements IIncidentService {
 
         List<Comment> comments = commentRepository.findAllByIncidentAndCategory(incident, ECommentCategory.PUBLIC);
         for (Comment comment: comments) {
-            if(comment.getUser().getEmail().equals(user.getEmail())){
+            if(comment.getUser().getId().equals(user.getId())){
                 comment.setOwner(true);
             }else{
                 comment.setOwner(false);
