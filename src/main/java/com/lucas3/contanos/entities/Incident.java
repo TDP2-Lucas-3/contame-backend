@@ -38,8 +38,6 @@ public class Incident {
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
     private Incident father;
 
-
-
     private Date creationDate;
 
     private Date updateDate;
@@ -53,6 +51,9 @@ public class Incident {
 
     @Transient
     private boolean voteByUser;
+
+    @Transient
+    List<Comment> comments;
 
     public Incident() {}
 
@@ -209,5 +210,13 @@ public class Incident {
 
     public void setFather(Incident father) {
         this.father = father;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

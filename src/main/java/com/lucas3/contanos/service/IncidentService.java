@@ -113,6 +113,7 @@ public class IncidentService implements IIncidentService {
 
         incident.setVotes(voteRepository.countByIncident(incident));
         incident.setVoteByUser(voteRepository.findByUserAndIncident(user,incident).isPresent());
+        incident.setComments(getComments(id,email));
         return incident;
     }
 
