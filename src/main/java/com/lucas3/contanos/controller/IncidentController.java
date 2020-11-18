@@ -244,21 +244,21 @@ public class IncidentController {
         }
     }
 
-    @PostMapping("/{idSon}/father/{idFather}")
-    public ResponseEntity<?> setFather(@PathVariable Long idSon, @PathVariable Long idFather){
+    @PostMapping("/{idSon}/parent/{idParent}")
+    public ResponseEntity<?> setFather(@PathVariable Long idSon, @PathVariable Long idParent){
         try{
-            incidentService.setFather(idSon,idFather);
+            incidentService.setFather(idSon,idParent);
         } catch (IncidentSonNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente hijo no existe ID: " + idSon));
         } catch (SonHaveSonsException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente hijo tiene hijos ID: " + idSon));
         } catch (IncidentFatherNotFoundException e) {
-            return ResponseEntity.badRequest().body(new StandResponse("El incidente padre no existe ID: " + idFather));
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente padre no existe ID: " + idParent));
         }
         return ResponseEntity.ok("Los incidentes fueron agrupados correctamente");
     }
 
-    @GetMapping("/{id}/father")
+    @GetMapping("/{id}/parent")
     public ResponseEntity<?> getFather(@PathVariable Long id){
         try{
             return ResponseEntity.ok(incidentService.getFather(id));
