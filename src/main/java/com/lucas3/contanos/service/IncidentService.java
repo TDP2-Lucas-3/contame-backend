@@ -273,7 +273,7 @@ public class IncidentService implements IIncidentService {
 
         if(!sonHaveNoSons(son.get())) throw new SonHaveSonsException();
 
-        son.get().setFather(father.get());
+        son.get().setParent(father.get());
         incidentRepository.save(son.get());
 
     }
@@ -283,9 +283,9 @@ public class IncidentService implements IIncidentService {
         Optional<Incident> son = incidentRepository.findById(id);
         if(!son.isPresent()) throw new IncidentSonNotFoundException();
 
-        if(son.get().getFather() == null) throw new IncidentFatherNotFoundException();
+        if(son.get().getParent() == null) throw new IncidentFatherNotFoundException();
 
-        return son.get().getFather();
+        return son.get().getParent();
     }
 
     @Override
@@ -293,7 +293,7 @@ public class IncidentService implements IIncidentService {
         Optional<Incident> father = incidentRepository.findById(id);
         if(!father.isPresent()) throw new IncidentFatherNotFoundException();
 
-        List<Incident> sons = incidentRepository.findAllByFather(father.get());
+        List<Incident> sons = incidentRepository.findAllByParent(father.get());
         if( sons.isEmpty()) throw new IncidentSonNotFoundException();
 
         return sons;
@@ -301,7 +301,7 @@ public class IncidentService implements IIncidentService {
     }
 
     private boolean sonHaveNoSons(Incident son) {
-        List<Incident> sons = incidentRepository.findAllByFather(son);
+        List<Incident> sons = incidentRepository.findAllByParent(son);
         return sons.isEmpty();
     }
 

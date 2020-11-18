@@ -35,8 +35,8 @@ public class Incident {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private User user;
 
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    private Incident father;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Incident parent;
 
     private Date creationDate;
 
@@ -204,12 +204,12 @@ public class Incident {
         this.hood = hood;
     }
 
-    public Incident getFather() {
-        return father;
+    public Incident getParent() {
+        return parent;
     }
 
-    public void setFather(Incident father) {
-        this.father = father;
+    public void setParent(Incident parent) {
+        this.parent = parent;
     }
 
     public List<Comment> getComments() {

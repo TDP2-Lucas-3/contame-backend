@@ -51,11 +51,11 @@ public class IncidentServiceTests {
     public void findAllTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
-        Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
+        incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
         IncidentRequest request = new IncidentRequest("Prueba", 1L);
-        Incident incident1 = incidentService.createIncident(request,"prueba@prueba.com");
-        Incident incident2 = incidentService.createIncident(request,"prueba@prueba.com");
-        Incident incident3 = incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
         List<Incident> incidents = incidentService.getAllIncidents();
         Assert.assertTrue(incidents.size() == 3);
     }
@@ -64,12 +64,12 @@ public class IncidentServiceTests {
     public void findAllTestEmptyFilters() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException, EmailTakenException, InvalidPasswordException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
-        Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
+        incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
         IncidentRequest request = new IncidentRequest("Prueba", 1L);
         IncidentFilter filter = new IncidentFilter("","");
-        Incident incident1 = incidentService.createIncident(request,"prueba@prueba.com");
-        Incident incident2 = incidentService.createIncident(request,"prueba@prueba.com");
-        Incident incident3 = incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
         List<Incident> incidents = incidentService.getAllIncidents("prueba@prueba.com",filter);
         Assert.assertTrue(incidents.size() == 3);
     }
@@ -78,13 +78,13 @@ public class IncidentServiceTests {
     public void findAllTestCategory() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException, EmailTakenException, InvalidPasswordException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
-        Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
-        Category category2 = incidentService.createCategory(new CategoryRequest("ROBO2", "Incidencia de robo2"));
+        incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
+        incidentService.createCategory(new CategoryRequest("ROBO2", "Incidencia de robo2"));
         IncidentRequest request = new IncidentRequest("Prueba", 1L);
         IncidentFilter filter = new IncidentFilter("","ROBO");
-        Incident incident1 = incidentService.createIncident(request,"prueba@prueba.com");
-        Incident incident2 = incidentService.createIncident(request,"prueba@prueba.com");
-        Incident incident3 = incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
         List<Incident> incidents = incidentService.getAllIncidents("prueba@prueba.com",filter);
         Assert.assertTrue(incidents.size() == 3);
     }
@@ -93,13 +93,13 @@ public class IncidentServiceTests {
     public void findNoneTestCategory() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException, EmailTakenException, InvalidPasswordException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
-        Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
-        Category category2 = incidentService.createCategory(new CategoryRequest("ROBO2", "Incidencia de robo2"));
+        incidentService.createCategory(new CategoryRequest("ROBO", "Incidencia de robo"));
+        incidentService.createCategory(new CategoryRequest("ROBO2", "Incidencia de robo2"));
         IncidentRequest request = new IncidentRequest("Prueba", 1L);
         IncidentFilter filter = new IncidentFilter("","ROBO2");
-        Incident incident1 = incidentService.createIncident(request,"prueba@prueba.com");
-        Incident incident2 = incidentService.createIncident(request,"prueba@prueba.com");
-        Incident incident3 = incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
         List<Incident> incidents = incidentService.getAllIncidents("prueba@prueba.com",filter);
         Assert.assertTrue(incidents.size() == 0);
     }
@@ -108,13 +108,13 @@ public class IncidentServiceTests {
     public void findByIdTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
-        Category category = incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
+        incidentService.createCategory(new CategoryRequest("ROBO", "Incidnecia de robo"));
         Incident result = null;
         IncidentRequest request = new IncidentRequest("Prueba", 1L);
         IncidentRequest request3 = new IncidentRequest("Prueba3", 1L);
-        Incident incident1 = incidentService.createIncident(request,"prueba@prueba.com");
-        Incident incident2 = incidentService.createIncident(request,"prueba@prueba.com");
-        Incident incident3 = incidentService.createIncident(request3,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request,"prueba@prueba.com");
+        incidentService.createIncident(request3,"prueba@prueba.com");
         try{
             result = incidentService.getIncidentById(3L,"prueba@prueba.com");
         } catch (IncidentNotFoundException | UserNotFoundException e) {
@@ -134,8 +134,8 @@ public class IncidentServiceTests {
     @Test
     public void createCategoryRepeat(){
         try{
-            Category category1 = incidentService.createCategory(new CategoryRequest("Robo", "Incidencia de robo"));
-            Category category2 = incidentService.createCategory(new CategoryRequest("Robo", "Incidencia de robo"));
+            incidentService.createCategory(new CategoryRequest("Robo", "Incidencia de robo"));
+            incidentService.createCategory(new CategoryRequest("Robo", "Incidencia de robo"));
         }catch(Exception e){
 
         }
@@ -187,8 +187,8 @@ public class IncidentServiceTests {
         } catch (Exception e){
             e.printStackTrace();
         }
-        Assert.assertNotNull(son.getFather());
-        Assert.assertTrue(son.getFather().getId() == 2L);
+        Assert.assertNotNull(son.getParent());
+        Assert.assertTrue(son.getParent().getId() == 2L);
     }
 
     @Test

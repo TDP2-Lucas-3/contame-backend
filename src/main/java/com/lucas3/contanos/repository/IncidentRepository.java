@@ -16,5 +16,5 @@ public interface IncidentRepository extends CrudRepository<Incident, Long>, Inci
 
     Integer countByUser(User user);
 
-    List<Incident> findAllByFather(Incident father);
+    List<Incident> findAllByParent(Incident parent);
 }
