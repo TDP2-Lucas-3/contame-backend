@@ -270,7 +270,7 @@ public class IncidentService implements IIncidentService {
     }
 
     private void changeStateIncident(Incident incident, EIncidentState state){
-        if(state.equals(EIncidentState.ARCHIVADO)){
+        if(state.equals(EIncidentState.RESUELTO) || state.equals(EIncidentState.ARCHIVADO)  ){
             incident.setCompleteDate(new Date());
         }
         incident.setState(state);
