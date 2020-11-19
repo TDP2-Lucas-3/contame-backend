@@ -242,15 +242,42 @@ public class IncidentService implements IIncidentService {
 
         EIncidentState newState = EIncidentState.valueOf(request.getState());
 
-        if(newState.equals(EIncidentState.ARCHIVADO)){
-            incident.setCompleteDate(new Date());
+        changeStateIncident(incident,newState);
+
+        if(incident.getParent() != null){
+            changeStateFamily(incident,newState);
+        }else{
+            changeStateSons(incident,newState);
         }
 
-        incident.setState(newState);
-        incident.setUpdateDate(new Date());
         postCommentAdmin(request.getComment(),email, incident);
+    }
+
+    private void changeStateSons(Incident incident, EIncidentState newState){
+        List<Incident> sons = incidentRepository.findAllByParent(incident);
+        for (Incident son: sons) {
+            changeStateIncident(son, newState);
+        }
+    }
+    private void changeStateFamily(Incident incident, EIncidentState newState){
+        List<Incident> family = incidentRepository.findAllByParent(incident.getParent());
+        for (Incident familiar: family) {
+            if(!incident.getId().equals(familiar.getId())){
+                changeStateIncident(familiar, newState);
+            }
+        }
+        changeStateIncident(incident.getParent(), newState);
+    }
+
+    private void changeStateIncident(Incident incident, EIncidentState state){
+        if(state.equals(EIncidentState.RESUELTO) || state.equals(EIncidentState.ARCHIVADO)  ){
+            incident.setCompleteDate(new Date());
+        }
+        incident.setState(state);
+        incident.setUpdateDate(new Date());
         incidentRepository.save(incident);
         notificationService.sendChangeStateNotification(incident);
+
     }
 
     private void postCommentAdmin(String commentary, String email, Incident incident) throws UserNotFoundException {

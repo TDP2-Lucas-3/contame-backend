@@ -159,14 +159,14 @@ public class IncidentServiceTests {
         Incident result = null;
         IncidentRequest request = new IncidentRequest("Prueba", 1L);
         incidentService.createIncident(request,"prueba@prueba.com");
-        ChangeStateRequest changeRequest = new ChangeStateRequest(EIncidentState.RECHAZADO.toString(), "Hola esto es un comentario");
+        ChangeStateRequest changeRequest = new ChangeStateRequest(EIncidentState.ARCHIVADO.toString(), "Hola esto es un comentario");
         incidentService.changeState(1L,changeRequest,"prueba@prueba.com");
         try{
             result = incidentService.getIncidentById(1L,"prueba@prueba.com");
         } catch (IncidentNotFoundException | UserNotFoundException e) {
             e.printStackTrace();
         }
-        Assert.assertEquals(result.getState(), EIncidentState.RECHAZADO);
+        Assert.assertEquals(result.getState(), EIncidentState.ARCHIVADO);
     }
 
     @Test
