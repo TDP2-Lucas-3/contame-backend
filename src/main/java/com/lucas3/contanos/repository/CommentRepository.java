@@ -12,4 +12,9 @@ public interface CommentRepository extends CrudRepository<Comment,Long> {
     List<Comment> findAllByIncident(Incident incident);
 
     List<Comment> findAllByIncidentAndCategory(Incident incident, ECommentCategory category);
+
+    List<Comment> findAllByIncidentAndCategoryOrderByDateDesc(Incident incident, ECommentCategory category);
+
+    List<Comment> findAllByIncidentOrderByDateDesc(Incident incident);
+
 }

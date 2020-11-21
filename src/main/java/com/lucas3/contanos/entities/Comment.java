@@ -3,6 +3,7 @@ package com.lucas3.contanos.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name ="comments")
@@ -21,6 +22,8 @@ public class Comment {
     @JsonIgnore
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Incident incident;
+
+    private Date date;
 
     private ECommentCategory category;
 
@@ -84,5 +87,13 @@ public class Comment {
 
     public void setOwner(boolean owner) {
         isOwner = owner;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
