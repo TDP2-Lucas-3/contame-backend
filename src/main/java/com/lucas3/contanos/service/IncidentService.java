@@ -239,6 +239,25 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
+    public List<EIncidentState> getStatesForState(String state) {
+        List<EIncidentState> possibleStates = new ArrayList<>();
+        EIncidentState eState = EIncidentState.valueOf(state);
+        switch (eState){
+            case REPORTADO:
+                possibleStates.add(EIncidentState.EN_PROGRESO);
+                possibleStates.add(EIncidentState.ARCHIVADO);
+                break;
+            case EN_PROGRESO:
+                possibleStates.add(EIncidentState.RESUELTO);
+                break;
+            case RESUELTO:
+            case ARCHIVADO:
+                break;
+        }
+        return possibleStates;
+    }
+
+    @Override
     public void changeState(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, UserNotFoundException {
         Incident incident = verifyIncident(id);
 
