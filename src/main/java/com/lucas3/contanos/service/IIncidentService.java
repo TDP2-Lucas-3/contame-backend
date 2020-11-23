@@ -41,6 +41,8 @@ public interface IIncidentService {
 
     List<EIncidentState> getStates();
 
+    List<EIncidentState> getStatesForState(String state);
+
     void changeState(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, StateNotFoundException, UserNotFoundException;
 
     void setFather(Long idSon, Long idFather) throws IncidentSonNotFoundException, IncidentFatherNotFoundException, SonHaveSonsException;

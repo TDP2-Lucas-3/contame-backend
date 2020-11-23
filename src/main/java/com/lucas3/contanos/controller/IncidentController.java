@@ -226,6 +226,16 @@ public class IncidentController {
         return incidentService.getStates();
     }
 
+    @GetMapping("/state/{state}")
+    public ResponseEntity<?> getStatesForState(@PathVariable String state){
+        try{
+            return ResponseEntity.ok(incidentService.getStates());
+        }catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("Estado invalido"));
+        }
+
+    }
+
     @PostMapping("/{id}/state")
     public ResponseEntity<?>  changeStates(@RequestHeader("Authorization") String fullToken,@PathVariable Long id, @RequestBody ChangeStateRequest request){
         try{

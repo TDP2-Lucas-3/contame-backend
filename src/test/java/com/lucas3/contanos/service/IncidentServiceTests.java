@@ -170,6 +170,16 @@ public class IncidentServiceTests {
     }
 
     @Test
+    public void getStateTest() {
+        List<EIncidentState> states = null;
+        states = incidentService.getStatesForState(EIncidentState.REPORTADO.toString());
+
+        Assert.assertEquals(states.size(), 2);
+        Assert.assertTrue(states.contains(EIncidentState.EN_PROGRESO));
+        Assert.assertTrue(states.contains(EIncidentState.ARCHIVADO));
+    }
+
+    @Test
     public void setFatherTest() throws FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
