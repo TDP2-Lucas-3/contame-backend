@@ -229,11 +229,10 @@ public class IncidentController {
     @GetMapping("/state/{state}")
     public ResponseEntity<?> getStatesForState(@PathVariable String state){
         try{
-            return ResponseEntity.ok(incidentService.getStates());
+            return ResponseEntity.ok(incidentService.getStatesForState(state));
         }catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new StandResponse("Estado invalido"));
+            return ResponseEntity.badRequest().body(new StandResponse("Estado invalido " + state));
         }
-
     }
 
     @PostMapping("/{id}/state")
