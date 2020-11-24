@@ -3,7 +3,6 @@ package com.lucas3.contanos.service;
 import com.lucas3.contanos.entities.*;
 import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.filters.IncidentFilter;
-import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
@@ -15,15 +14,16 @@ public interface IIncidentService {
     Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException;
 
     List<Incident> getAllIncidents();
-    List<Incident> getAllIncidents(String email, IncidentFilter filter) throws UserNotFoundException;
+    List<Incident> getAllIncidents(String email) throws UserNotFoundException;
 
     List<Incident> getAllIncidentsByUser(String email) throws UserNotFoundException;
 
     Incident getIncidentById(Long id, String email) throws IncidentNotFoundException, UserNotFoundException;
 
-    List<Category> getCategories();
+    List<String> getCategories();
 
-    Category createCategory(CategoryRequest request);
+    List<String> getSubcategories(String category);
+
 
     Comment createCommentUser(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException;
 
@@ -39,11 +39,13 @@ public interface IIncidentService {
 
     void unvote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, VoteNotFoundException;
 
-    List<EIncidentState> getStates();
+    List<String> getStatesPublic();
 
-    List<EIncidentState> getStatesForState(String state);
+    List<String> getStatesPrivate();
 
     void changeState(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, StateNotFoundException, UserNotFoundException;
+
+    void changeStatePrivate(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, StateNotFoundException, UserNotFoundException;
 
     void setFather(Long idSon, Long idFather) throws IncidentSonNotFoundException, IncidentFatherNotFoundException, SonHaveSonsException;
 

@@ -1,6 +1,6 @@
 package com.lucas3.contanos.repository;
 
-import com.lucas3.contanos.entities.Category;
+import com.lucas3.contanos.entities.EIncidentCategory;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.filters.IncidentFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +19,6 @@ public class IncidentRepositoryCustomImpl implements  IncidentRepositoryCustom {
     @Autowired
     EntityManager em;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-
     @Override
     public List<Incident> findAll(IncidentFilter filter) {
 
@@ -33,10 +30,6 @@ public class IncidentRepositoryCustomImpl implements  IncidentRepositoryCustom {
 
         if (!filter.getHood().isEmpty()) {
             predicates.add(cb.equal(incident.get("hood"), filter.getHood()));
-        }
-        Optional<Category> category = categoryRepository.findByName(filter.getCategory().toUpperCase());
-        if (category.isPresent()) {
-            predicates.add(cb.equal(incident.get("category"), category.get()));
         }
 
         cq.where(predicates.toArray(new Predicate[0]));

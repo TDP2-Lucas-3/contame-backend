@@ -1,10 +1,8 @@
 package com.lucas3.contanos.controller;
 
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
-import com.lucas3.contanos.model.exception.InvalidCategoryException;
 import com.lucas3.contanos.model.exception.InvalidUpdateException;
 import com.lucas3.contanos.model.exception.UserNotFoundException;
-import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.UpdateUserRequest;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.model.response.UserResponse;

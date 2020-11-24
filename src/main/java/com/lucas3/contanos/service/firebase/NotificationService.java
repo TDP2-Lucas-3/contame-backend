@@ -20,7 +20,7 @@ public class NotificationService {
         try{
             PushNotificationRequest request = new PushNotificationRequest();
             request.setTitle("Te escuchamos");
-            request.setMessage("Recibimos tu reporte de " + incident.getCategory().getName().toLowerCase());
+            request.setMessage("Recibimos tu reporte de " + incident.getCategory().getValue());
             request.setToken(user.getFCMToken());
             fcmService.sendMessageToToken(request);
         }catch(Exception e){
