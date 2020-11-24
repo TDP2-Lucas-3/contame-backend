@@ -1,11 +1,13 @@
 package com.lucas3.contanos.controller;
 
+import com.lucas3.contanos.entities.EIncidentCategory;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
+import com.lucas3.contanos.model.response.ContameMapResponse;
 import com.lucas3.contanos.model.response.IncidentResponse;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.security.jwt.JwtUtils;
@@ -208,25 +210,24 @@ public class IncidentController {
         }
     }
 
-
-    @GetMapping("/categories")
-    public List<String> getCategories(){
-        return incidentService.getCategories();
+    @GetMapping("/category")
+    public List<ContameMapResponse> getCategoriesEnum(){
+        return incidentService.getCategoriesMap();
     }
 
     @GetMapping("/subcategory/{category}")
-    public List<String> getSubcategories(String category){
+    public List<String> getSubcategories(@PathVariable String category){
         return incidentService.getSubcategories(category);
     }
 
 
     @GetMapping("/state")
-    public List<String> getStates(){
+    public List<ContameMapResponse> getStates(){
         return incidentService.getStatesPublic();
     }
 
     @GetMapping("/state/private")
-    public List<String> getStatesPrivate(){
+    public List<ContameMapResponse> getStatesPrivate(){
         return incidentService.getStatesPrivate();
     }
 

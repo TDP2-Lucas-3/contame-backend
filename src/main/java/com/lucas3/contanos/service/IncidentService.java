@@ -6,6 +6,7 @@ import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
+import com.lucas3.contanos.model.response.ContameMapResponse;
 import com.lucas3.contanos.model.response.geocoding.LocationResponse;
 import com.lucas3.contanos.repository.*;
 import com.lucas3.contanos.service.firebase.NotificationService;
@@ -86,7 +87,7 @@ public class IncidentService implements IIncidentService {
 
     @Override
     public Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException {
-        EIncidentCategory category = EIncidentCategory.get(request.getCategory());
+        EIncidentCategory category = EIncidentCategory.valueOf(request.getCategory());
 
         Incident incident = new Incident(request.getTitle(),category,request.getDescription(), request.getLat(), request.getLon());
 
@@ -171,8 +172,17 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
+    public List<ContameMapResponse> getCategoriesMap() {
+        List<ContameMapResponse> response = new ArrayList<>();
+        for ( EIncidentCategory cat: EIncidentCategory.values()) {
+            response.add(new ContameMapResponse(cat.name(), cat.getValue()));
+        }
+        return response;
+    }
+
+    @Override
     public List<String> getSubcategories(String category) {
-        EIncidentCategory cat = EIncidentCategory.get(category);
+        EIncidentCategory cat = EIncidentCategory.valueOf(category);
         return subcategories.get(cat);
     }
 
@@ -281,19 +291,19 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public List<String> getStatesPublic() {
-        List<String> publicStates = new ArrayList<>();
+    public List<ContameMapResponse> getStatesPublic() {
+        List<ContameMapResponse> publicStates = new ArrayList<>();
         for (EIncidentStatePublic state: EIncidentStatePublic.values()) {
-            publicStates.add(state.getValue());
+            publicStates.add(new ContameMapResponse(state.name(), state.getValue()));
         }
         return publicStates;
     }
 
     @Override
-    public List<String> getStatesPrivate() {
-        List<String> privateStates = new ArrayList<>();
+    public List<ContameMapResponse> getStatesPrivate() {
+        List<ContameMapResponse> privateStates = new ArrayList<>();
         for (EIncidentStatePrivate state: EIncidentStatePrivate.values()) {
-            privateStates.add(state.getValue());
+            privateStates.add(new ContameMapResponse(state.name(), state.getValue()));
         }
         return privateStates;
     }
@@ -303,7 +313,7 @@ public class IncidentService implements IIncidentService {
     public void changeState(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, UserNotFoundException {
         Incident incident = verifyIncident(id);
 
-        EIncidentStatePublic newState = EIncidentStatePublic.get(request.getState());
+        EIncidentStatePublic newState = EIncidentStatePublic.valueOf(request.getState());
 
         changeStateIncident(incident,newState);
 
@@ -347,7 +357,7 @@ public class IncidentService implements IIncidentService {
     public void changeStatePrivate(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, UserNotFoundException {
         Incident incident = verifyIncident(id);
 
-        EIncidentStatePrivate newState = EIncidentStatePrivate.get(request.getState());
+        EIncidentStatePrivate newState = EIncidentStatePrivate.valueOf(request.getState());
 
         changeStatePrivateIncident(incident,newState);
 

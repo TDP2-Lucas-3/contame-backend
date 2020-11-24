@@ -6,6 +6,7 @@ import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
+import com.lucas3.contanos.model.response.ContameMapResponse;
 
 import java.util.List;
 
@@ -21,6 +22,8 @@ public interface IIncidentService {
     Incident getIncidentById(Long id, String email) throws IncidentNotFoundException, UserNotFoundException;
 
     List<String> getCategories();
+
+    List<ContameMapResponse> getCategoriesMap();
 
     List<String> getSubcategories(String category);
 
@@ -39,9 +42,9 @@ public interface IIncidentService {
 
     void unvote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, VoteNotFoundException;
 
-    List<String> getStatesPublic();
+    List<ContameMapResponse> getStatesPublic();
 
-    List<String> getStatesPrivate();
+    List<ContameMapResponse> getStatesPrivate();
 
     void changeState(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, StateNotFoundException, UserNotFoundException;
 
