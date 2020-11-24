@@ -90,9 +90,9 @@ public class IncidentServiceTests {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Incident result = null;
-        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.getValue());
+        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.name());
         incidentService.createIncident(request,"prueba@prueba.com");
-        ChangeStateRequest changeRequest = new ChangeStateRequest(EIncidentStatePublic.INVALIDO.getValue(), "Hola esto es un comentario");
+        ChangeStateRequest changeRequest = new ChangeStateRequest(EIncidentStatePublic.INVALIDO.name(), "Hola esto es un comentario");
         incidentService.changeState(1L,changeRequest,"prueba@prueba.com");
         try{
             result = incidentService.getIncidentById(1L,"prueba@prueba.com");
