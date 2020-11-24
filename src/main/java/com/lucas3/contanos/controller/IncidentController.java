@@ -1,14 +1,12 @@
 package com.lucas3.contanos.controller;
 
-import com.lucas3.contanos.entities.Category;
-import com.lucas3.contanos.entities.EIncidentState;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.filters.IncidentFilter;
-import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
+import com.lucas3.contanos.model.response.IncidentResponse;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.security.jwt.JwtUtils;
 import com.lucas3.contanos.service.IncidentService;
@@ -17,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -32,11 +31,11 @@ public class IncidentController {
 
     @PostMapping(value= "")
     public ResponseEntity<?> createIncident(@RequestHeader("Authorization") String fullToken,@RequestBody IncidentRequest request) {
-        Incident response = null;
+        IncidentResponse response = null;
         try{
             validateIncident(request);
             String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
-            response = incidentService.createIncident(request, email);
+            response = new IncidentResponse(incidentService.createIncident(request, email));
 
         } catch (FailedReverseGeocodeException e) {
             return ResponseEntity
@@ -59,13 +58,15 @@ public class IncidentController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getIncidents(@RequestHeader("Authorization") String fullToken,
-                                          @RequestParam(value = "hood", required = false, defaultValue="") String hood,
-                                          @RequestParam(value = "category", required = false, defaultValue="") String category){
+    public ResponseEntity<?> getIncidents(@RequestHeader("Authorization") String fullToken){
+
+        List<IncidentResponse> response = new ArrayList<>();
         try {
             String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
-            IncidentFilter filter = new IncidentFilter(hood,category);
-            return ResponseEntity.ok(incidentService.getAllIncidents(email,filter));
+            for (Incident incident: incidentService.getAllIncidents(email)) {
+                response.add(new IncidentResponse(incident));
+            }
+            return ResponseEntity.ok(response);
         } catch (UserNotFoundException e) {
             return ResponseEntity
                     .badRequest()
@@ -75,9 +76,13 @@ public class IncidentController {
 
     @GetMapping("/self")
     public ResponseEntity<?> getMyIncidents(@RequestHeader("Authorization") String fullToken){
+        List<IncidentResponse> response = new ArrayList<>();
         try{
             String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
-            return ResponseEntity.ok(incidentService.getAllIncidentsByUser(email));
+            for (Incident incident: incidentService.getAllIncidentsByUser(email)) {
+                response.add(new IncidentResponse(incident));
+            }
+            return ResponseEntity.ok(response);
         }catch (UserNotFoundException e) {
             return ResponseEntity
                     .badRequest()
@@ -90,7 +95,7 @@ public class IncidentController {
     public ResponseEntity<?>  getIncidentById(@PathVariable Long id,@RequestHeader("Authorization") String fullToken)  {
         try{
             String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
-            return ResponseEntity.ok(incidentService.getIncidentById(id, email));
+            return ResponseEntity.ok(new IncidentResponse(incidentService.getIncidentById(id, email)));
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El usuario no existe - TOKEN INVALIDO"));
         } catch (IncidentNotFoundException e) {
@@ -205,41 +210,47 @@ public class IncidentController {
 
 
     @GetMapping("/categories")
-    public List<Category> getCategories(){
+    public List<String> getCategories(){
         return incidentService.getCategories();
     }
 
-    @PostMapping("/categories")
-    public ResponseEntity<?> createCategory(@RequestBody CategoryRequest categoryRequest){
-        Category category = null;
-        try{
-            validateCategory(categoryRequest);
-            category = incidentService.createCategory(categoryRequest);
-            return ResponseEntity.ok(category);
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body(new StandResponse("No se pudo crear la categoria"));
-        }
+    @GetMapping("/subcategory/{category}")
+    public List<String> getSubcategories(String category){
+        return incidentService.getSubcategories(category);
     }
+
 
     @GetMapping("/state")
-    public List<EIncidentState> getStates(){
-        return incidentService.getStates();
+    public List<String> getStates(){
+        return incidentService.getStatesPublic();
     }
 
-    @GetMapping("/state/{state}")
-    public ResponseEntity<?> getStatesForState(@PathVariable String state){
-        try{
-            return ResponseEntity.ok(incidentService.getStatesForState(state));
-        }catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new StandResponse("Estado invalido " + state));
-        }
+    @GetMapping("/state/private")
+    public List<String> getStatesPrivate(){
+        return incidentService.getStatesPrivate();
     }
+
 
     @PostMapping("/{id}/state")
     public ResponseEntity<?>  changeStates(@RequestHeader("Authorization") String fullToken,@PathVariable Long id, @RequestBody ChangeStateRequest request){
         try{
             String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
             incidentService.changeState(id,request, email);
+            return ResponseEntity.ok("El incidente se actualizo correctamente");
+        } catch (IncidentNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El incidente no existe - ID INVALIDO"));
+        } catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(new StandResponse("Estado invalido"));
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El usuario administrador existe"));
+        }
+    }
+
+    @PostMapping("/{id}/state/private")
+    public ResponseEntity<?>  changeStatesPrivate(@RequestHeader("Authorization") String fullToken,@PathVariable Long id, @RequestBody ChangeStateRequest request){
+        try{
+            String email = jwtUtils.getUserEmailFromJwtToken(fullToken);
+            incidentService.changeStatePrivate(id,request, email);
             return ResponseEntity.ok("El incidente se actualizo correctamente");
         } catch (IncidentNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente no existe - ID INVALIDO"));
@@ -267,7 +278,7 @@ public class IncidentController {
     @GetMapping("/{id}/parent")
     public ResponseEntity<?> getFather(@PathVariable Long id){
         try{
-            return ResponseEntity.ok(incidentService.getFather(id));
+            return ResponseEntity.ok(new IncidentResponse(incidentService.getFather(id)));
         } catch (IncidentSonNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente no existe ID: " + id));
         } catch (IncidentFatherNotFoundException e) {
@@ -277,18 +288,17 @@ public class IncidentController {
 
     @GetMapping("/{id}/son")
     public ResponseEntity<?> getSons(@PathVariable Long id){
+        List<IncidentResponse> response = new ArrayList<>();
         try{
-            return ResponseEntity.ok(incidentService.getSons(id));
+            for (Incident incident:incidentService.getSons(id)) {
+                response.add(new IncidentResponse(incident));
+            }
+            return ResponseEntity.ok(response);
         } catch (IncidentSonNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente no tiene hijos"));
         } catch (IncidentFatherNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El incidente no existe ID: " + id));
         }
-    }
-
-    private void validateCategory(CategoryRequest request) throws InvalidCategoryException {
-        if(request.getName() == null || StringUtils.isEmpty(request.getName())) throw new InvalidCategoryException();
-        if(request.getDescription() == null || StringUtils.isEmpty(request.getDescription())) throw new InvalidCategoryException();
     }
 
     private void validateIncident(IncidentRequest request) throws InvalidIncidentException {

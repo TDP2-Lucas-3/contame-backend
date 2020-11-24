@@ -1,15 +1,10 @@
 package com.lucas3.contanos.service;
 
-import com.lucas3.contanos.entities.Category;
 import com.lucas3.contanos.entities.ERole;
-import com.lucas3.contanos.entities.Incident;
-import com.lucas3.contanos.entities.User;
 import com.lucas3.contanos.model.exception.EmailTakenException;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
 import com.lucas3.contanos.model.exception.InvalidPasswordException;
 import com.lucas3.contanos.model.exception.UserNotFoundException;
-import com.lucas3.contanos.model.request.CategoryRequest;
-import com.lucas3.contanos.model.request.IncidentRequest;
 import com.lucas3.contanos.model.request.RegisterRequest;
 import com.lucas3.contanos.model.request.UpdateUserRequest;
 import com.lucas3.contanos.model.response.UserResponse;
@@ -20,9 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 // Test del servicio de reportes
 @SpringBootTest

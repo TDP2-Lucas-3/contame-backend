@@ -1,7 +1,5 @@
 package com.lucas3.contanos.model.filters;
 
-import com.lucas3.contanos.entities.Category;
-
 public class IncidentFilter {
 
     private String hood;

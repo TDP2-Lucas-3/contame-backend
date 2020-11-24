@@ -11,12 +11,13 @@ public class IncidentRequest {
     private double lat;
     private double lon;
     private List<String> images;
-    private Long category;
+    private String category;
+    private String subcategory;
 
     public IncidentRequest() {
     }
 
-    public IncidentRequest(String title, String description, double lat, double lon, List<String> images, Long category) {
+    public IncidentRequest(String title, String description, double lat, double lon, List<String> images, String category, String subcategory) {
         this.title = title;
         this.description = description;
         this.lat = lat;
@@ -26,7 +27,7 @@ public class IncidentRequest {
 
     }
 
-    public IncidentRequest(String title, Long category) {
+    public IncidentRequest(String title, String category) {
         this.title = title;
         this.category = category;
 
@@ -72,11 +73,19 @@ public class IncidentRequest {
         this.images = images;
     }
 
-    public Long getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(Long category) {
+    public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getSubcategory() {
+        return subcategory;
+    }
+
+    public void setSubcategory(String subcategory) {
+        this.subcategory = subcategory;
     }
 }
