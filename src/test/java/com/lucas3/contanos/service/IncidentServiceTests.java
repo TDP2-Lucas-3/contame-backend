@@ -36,7 +36,7 @@ public class IncidentServiceTests {
     public void createTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
-        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.getValue());
+        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.name());
         Incident incident = new Incident("Prueba", EIncidentCategory.ALUMBRADO);
         incident.setId(1L);
         Incident incident1 = incidentService.createIncident(request,"prueba@prueba.com");
@@ -49,7 +49,7 @@ public class IncidentServiceTests {
     public void findAllTest() throws IOException, FailedToLoadImageException, FailedReverseGeocodeException, EmailTakenException, InvalidPasswordException, UserNotFoundException {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
-        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.getValue());
+        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.name());
         incidentService.createIncident(request,"prueba@prueba.com");
         incidentService.createIncident(request,"prueba@prueba.com");
         incidentService.createIncident(request,"prueba@prueba.com");
@@ -63,8 +63,8 @@ public class IncidentServiceTests {
         RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
         userService.registerUser(register);
         Incident result = null;
-        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.getValue());
-        IncidentRequest request3 = new IncidentRequest("Prueba3", EIncidentCategory.ALUMBRADO.getValue());
+        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.name());
+        IncidentRequest request3 = new IncidentRequest("Prueba3", EIncidentCategory.ALUMBRADO.name());
         incidentService.createIncident(request,"prueba@prueba.com");
         incidentService.createIncident(request,"prueba@prueba.com");
         incidentService.createIncident(request3,"prueba@prueba.com");
@@ -74,7 +74,7 @@ public class IncidentServiceTests {
             e.printStackTrace();
         }
         Assert.assertEquals(request3.getTitle(), result.getTitle());
-        Assert.assertEquals(request3.getCategory() , result.getCategory().getValue());
+        Assert.assertEquals(request3.getCategory() , result.getCategory().name());
     }
 
     @Test
@@ -110,8 +110,8 @@ public class IncidentServiceTests {
         userService.registerUser(register);
         Incident son = null;
 
-        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.getValue());
-        IncidentRequest request2 = new IncidentRequest("Prueba2", EIncidentCategory.ALUMBRADO.getValue());
+        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.name());
+        IncidentRequest request2 = new IncidentRequest("Prueba2", EIncidentCategory.ALUMBRADO.name());
         incidentService.createIncident(request,"prueba@prueba.com");
         incidentService.createIncident(request2,"prueba@prueba.com");
 
@@ -132,8 +132,8 @@ public class IncidentServiceTests {
         Incident son = null;
         List<Incident> sons = new ArrayList<>();
 
-        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.getValue());
-        IncidentRequest request2 = new IncidentRequest("Prueba2", EIncidentCategory.ALUMBRADO.getValue());
+        IncidentRequest request = new IncidentRequest("Prueba", EIncidentCategory.ALUMBRADO.name());
+        IncidentRequest request2 = new IncidentRequest("Prueba2", EIncidentCategory.ALUMBRADO.name());
         incidentService.createIncident(request,"prueba@prueba.com");
         incidentService.createIncident(request2,"prueba@prueba.com");
 
