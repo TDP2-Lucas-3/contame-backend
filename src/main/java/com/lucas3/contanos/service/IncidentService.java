@@ -322,8 +322,10 @@ public class IncidentService implements IIncidentService {
         }else{
             changeStateSons(incident,newState);
         }
+        if(request.getComment() != null && !request.getComment().isEmpty()){
+            postCommentAdmin(request.getComment(),email, incident);
+        }
 
-        postCommentAdmin(request.getComment(),email, incident);
     }
 
     private void changeStateSons(Incident incident, EIncidentStatePublic newState){
@@ -366,8 +368,10 @@ public class IncidentService implements IIncidentService {
         }else{
             changeStatePrivateSons(incident,newState);
         }
+        if(request.getComment() != null && !request.getComment().isEmpty()){
+            postCommentAdmin(request.getComment(),email, incident);
+        }
 
-        postCommentAdmin(request.getComment(),email, incident);
     }
 
     private void changeStatePrivateSons(Incident incident, EIncidentStatePrivate newState){
