@@ -6,6 +6,7 @@ import com.lucas3.contanos.model.request.RegisterRequest;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.model.request.LoginRequest;
 import com.lucas3.contanos.service.UserService;
+import io.swagger.annotations.Api;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,7 @@ import java.util.Base64;
 
 @RestController
 @CrossOrigin(origins = "*", methods= {RequestMethod.GET,RequestMethod.POST})
+@Api(value = "Api de autenticacion", description = "Registro y login google o backoffice")
 @RequestMapping("")
 public class AuthController {
 

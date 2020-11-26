@@ -12,6 +12,7 @@ import com.lucas3.contanos.model.response.IncidentResponse;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.security.jwt.JwtUtils;
 import com.lucas3.contanos.service.IncidentService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", methods= {RequestMethod.GET,RequestMethod.POST})
+@Api(value = "Api de incidentes", description = "Aca esta la PAPA")
 @RequestMapping("/incident")
 public class IncidentController {
 

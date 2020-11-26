@@ -393,8 +393,6 @@ public class IncidentService implements IIncidentService {
         incident.setStatePrivate(state);
         incident.setUpdateDate(new Date());
         incidentRepository.save(incident);
-        notificationService.sendChangeStateNotification(incident);
-
     }
 
     private void postCommentAdmin(String commentary, String email, Incident incident) throws UserNotFoundException {
