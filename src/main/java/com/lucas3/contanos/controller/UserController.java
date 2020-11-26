@@ -1,15 +1,14 @@
 package com.lucas3.contanos.controller;
 
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
-import com.lucas3.contanos.model.exception.InvalidCategoryException;
 import com.lucas3.contanos.model.exception.InvalidUpdateException;
 import com.lucas3.contanos.model.exception.UserNotFoundException;
-import com.lucas3.contanos.model.request.CategoryRequest;
 import com.lucas3.contanos.model.request.UpdateUserRequest;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.model.response.UserResponse;
 import com.lucas3.contanos.security.jwt.JwtUtils;
 import com.lucas3.contanos.service.UserService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -19,6 +18,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", methods= {RequestMethod.GET})
+@Api(value = "Api de usuarios", description = "Obtencion y modificacion de usuarios")
 @RequestMapping("/user")
 public class UserController {
 

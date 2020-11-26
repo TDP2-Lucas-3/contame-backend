@@ -1,8 +1,6 @@
 package com.lucas3.contanos.entities;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -29,13 +27,15 @@ public class Incident {
     @ElementCollection
     private List<String> images;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    private Category category;
+    private EIncidentCategory category;
+
+    private String subcategory;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private User user;
 
-
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Incident parent;
 
     private Date creationDate;
 
@@ -43,7 +43,9 @@ public class Incident {
 
     private Date completeDate;
 
-    private EIncidentState state;
+    private EIncidentStatePublic state;
+
+    private EIncidentStatePrivate statePrivate;
 
     @Transient
     private Integer votes;
@@ -51,16 +53,19 @@ public class Incident {
     @Transient
     private boolean voteByUser;
 
+    @Transient
+    List<Comment> comments;
+
     public Incident() {}
 
-    public Incident(String title, Category category){
+    public Incident(String title, EIncidentCategory category){
         this.title = title;
         this.category = category;
         this.creationDate = new Date();
         this.updateDate = new Date();
     }
 
-    public Incident(String title, Category category, String description, double lat, double lon){
+    public Incident(String title, EIncidentCategory category, String description, double lat, double lon){
         this.title = title;
         this.category = category;
         this.description = description;
@@ -120,14 +125,6 @@ public class Incident {
         this.images = images;
     }
 
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
     public Date getCreationDate() {
         return creationDate;
     }
@@ -160,11 +157,11 @@ public class Incident {
         this.user = user;
     }
 
-    public EIncidentState getState() {
+    public EIncidentStatePublic getState() {
         return state;
     }
 
-    public void setState(EIncidentState state) {
+    public void setState(EIncidentStatePublic state) {
         this.state = state;
     }
 
@@ -198,5 +195,45 @@ public class Incident {
 
     public void setHood(String hood) {
         this.hood = hood;
+    }
+
+    public Incident getParent() {
+        return parent;
+    }
+
+    public void setParent(Incident parent) {
+        this.parent = parent;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public EIncidentCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(EIncidentCategory category) {
+        this.category = category;
+    }
+
+    public String getSubcategory() {
+        return subcategory;
+    }
+
+    public void setSubcategory(String subcategory) {
+        this.subcategory = subcategory;
+    }
+
+    public EIncidentStatePrivate getStatePrivate() {
+        return statePrivate;
+    }
+
+    public void setStatePrivate(EIncidentStatePrivate statePrivate) {
+        this.statePrivate = statePrivate;
     }
 }

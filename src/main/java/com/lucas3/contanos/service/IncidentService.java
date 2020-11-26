@@ -3,13 +3,12 @@ package com.lucas3.contanos.service;
 import com.lucas3.contanos.entities.*;
 import com.lucas3.contanos.model.exception.*;
 import com.lucas3.contanos.model.filters.IncidentFilter;
-import com.lucas3.contanos.model.firebase.PushNotificationRequest;
-import com.lucas3.contanos.model.request.CategoryRequest;
+import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
+import com.lucas3.contanos.model.response.ContameMapResponse;
 import com.lucas3.contanos.model.response.geocoding.LocationResponse;
 import com.lucas3.contanos.repository.*;
-import com.lucas3.contanos.service.firebase.FCMService;
 import com.lucas3.contanos.service.firebase.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,9 +21,6 @@ public class IncidentService implements IIncidentService {
 
     @Autowired
     private IncidentRepository incidentRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
 
     @Autowired
     private VoteRepository voteRepository;
@@ -44,12 +40,56 @@ public class IncidentService implements IIncidentService {
     @Autowired
     private NotificationService notificationService;
 
+    private static final Map<EIncidentCategory, List<String>> subcategories;
+    static {
+        Map<EIncidentCategory, List<String>> map = new HashMap<>();
+        map.put(EIncidentCategory.ALUMBRADO, Arrays.asList("Cable suelto",
+                "Despeje de ramas",
+                "Luminaria no funciona",
+                "Luminaria prendida de día",
+                "Pedido de luminaria nueva",
+                "Poste en mal estado",
+                "Reclamos varios"));
+
+        map.put(EIncidentCategory.AUTOS, Arrays.asList("Autos abandonados"));
+
+        map.put(EIncidentCategory.VIA_PUBLICA, Arrays.asList("Corte de pasto",
+                "Bache",
+                "Cordón a reparar",
+                "Semáforo en riesgo de caída",
+                "Solicitud de rampa para personas con movilidad reducida",
+                "Solicitudes varias"));
+
+        map.put(EIncidentCategory.LIMPIEZA, Arrays.asList("Destapar desagüe",
+                "Falta servicio de recolección",
+                "Falta servicio de barrido",
+                "Solicitud de recolección",
+                "Falta tapa boca de desagüe",
+                "Reparar desagüe","Reclamos varios"));
+
+        map.put(EIncidentCategory.ESPACIOS_VERDES, Arrays.asList("Corte de césped",
+                "Extracción de Árbol",
+                "Limpieza y vaciado de cestos de espacios públicos",
+                "Solicitud de poda",
+                "Retiro de poda",
+                "Despeje de ramas en luminaria/semáforo",
+                "Permiso de extracción a cargo del vecino"));
+
+        map.put(EIncidentCategory.USO_ESPACIO, Arrays.asList("Carteles Publicitarios con riesgo de caída",
+                "Carteles o columnas abandonadas",
+                "Ocupación indebida del espacio público",
+                "Puesto abandonado o falta mantenimiento",
+                "Reparación de rampa para personas con movilidad reducida"));
+
+        subcategories = Collections.unmodifiableMap(map);
+    }
+
 
     @Override
-    public Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException {
-        Optional<Category> category = categoryRepository.findById(request.getCategory());
+    public Incident createIncident(IncidentRequest request, String email) throws FailedToLoadImageException, FailedReverseGeocodeException, UserNotFoundException {
+        EIncidentCategory category = EIncidentCategory.valueOf(request.getCategory());
 
-        Incident incident = new Incident(request.getTitle(),category.get(),request.getDescription(), request.getLat(), request.getLon());
+        Incident incident = new Incident(request.getTitle(),category,request.getDescription(), request.getLat(), request.getLon());
 
         List<String> imagesURLs = new ArrayList<>();
         if(request.getImages() != null){
@@ -63,9 +103,12 @@ public class IncidentService implements IIncidentService {
             incident.setLocation(location.getAddress());
             incident.setHood(location.getHood());
         }
-        User user = userRepository.findByEmail(email).get();
+        User user = verifyUser(email);
         incident.setUser(user);
-        incident.setState(EIncidentState.REPORTADO);
+        incident.setState(EIncidentStatePublic.INGRESADO);
+        incident.setStatePrivate(EIncidentStatePrivate.INSPECCION);
+        incident.setSubcategory(request.getSubcategory());
+
         incidentRepository.save(incident);
         notificationService.sendIncidentNotification(user,incident);
 
@@ -75,16 +118,13 @@ public class IncidentService implements IIncidentService {
 
 
     @Override
-    public List<Incident> getAllIncidents(String email, IncidentFilter filter) throws UserNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-
-        if(!user.isPresent()) throw new UserNotFoundException();
-
-        List<Incident> incidents = incidentRepository.findAll(filter);
+    public List<Incident> getAllIncidents(String email) throws UserNotFoundException {
+        User user = verifyUser(email);
+        List<Incident> incidents = incidentRepository.findAll();
 
         for (Incident incident: incidents) {
             incident.setVotes(voteRepository.countByIncident(incident));
-            incident.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),incident).isPresent());
+            incident.setVoteByUser(voteRepository.findByUserAndIncident(user,incident).isPresent());
         }
 
         return incidents;
@@ -97,94 +137,152 @@ public class IncidentService implements IIncidentService {
 
     @Override
     public List<Incident> getAllIncidentsByUser(String email) throws UserNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-
-        if(!user.isPresent()) throw new UserNotFoundException();
+        User user = verifyUser(email);
 
         List<Incident> incidents = incidentRepository.findAllByUser(userRepository.findByEmail(email).get());
 
         for (Incident incident: incidents) {
             incident.setVotes(voteRepository.countByIncident(incident));
-            incident.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),incident).isPresent());
+            incident.setVoteByUser(voteRepository.findByUserAndIncident(user,incident).isPresent());
         }
         return incidents;
     }
 
     @Override
     public Incident getIncidentById(Long id, String email) throws IncidentNotFoundException, UserNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-        if(!user.isPresent()) throw new UserNotFoundException();
+        User user = verifyUser(email);
+        Incident incident = verifyIncident(id);
 
-        Optional<Incident> incident = incidentRepository.findById(id);
-        if(incident.isPresent()){
-            Incident inc = incident.get();
-            inc.setVotes(voteRepository.countByIncident(inc));
-            inc.setVoteByUser(voteRepository.findByUserAndIncident(user.get(),inc).isPresent());
-            return inc;
+        incident.setVotes(voteRepository.countByIncident(incident));
+        incident.setVoteByUser(voteRepository.findByUserAndIncident(user,incident).isPresent());
+        List<Comment> comments = new ArrayList<>(getPublicComments(id));
+        incident.setComments(comments);
+        return incident;
+    }
+
+    @Override
+    public List<String> getCategories() {
+        List<String> result = new ArrayList<>();
+        EIncidentCategory[] categories = EIncidentCategory.values();
+        for (EIncidentCategory category:categories) {
+            result.add(category.getValue());
         }
-        throw new IncidentNotFoundException("Reporte inexistente");
+        Collections.sort(result);
+        return result;
     }
 
     @Override
-    public List<Category> getCategories() {
-        List<Category> categories = categoryRepository.findAll() ;
-        Collections.sort(categories, Comparator.comparing(Category::getName));
-        return categories;
+    public List<ContameMapResponse> getCategoriesMap() {
+        List<ContameMapResponse> response = new ArrayList<>();
+        for ( EIncidentCategory cat: EIncidentCategory.values()) {
+            response.add(new ContameMapResponse(cat.name(), cat.getValue()));
+        }
+        return response;
     }
 
     @Override
-    public Category createCategory(CategoryRequest request) {
-        return categoryRepository.save(new Category(request));
+    public List<String> getSubcategories(String category) {
+        EIncidentCategory cat = EIncidentCategory.valueOf(category);
+        return subcategories.get(cat);
     }
 
+
     @Override
-    public Comment createComment(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
+    public Comment createCommentUser(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException {
+        User user = verifyUser(email);
+        Incident incident = verifyIncident(idIncident);
 
-        if(!user.isPresent()) throw new UserNotFoundException();
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
-
-        Comment comment = new Comment(request.getComment(),user.get(),incident.get());
+        Comment comment = new Comment(request.getComment(),user,incident);
         comment.setCategory(ECommentCategory.PUBLIC);
+        comment.setDate(new Date());
         commentRepository.save(comment);
+        notificationService.sendCommentUserNotification(user,incident);
+        return comment;
+    }
+
+    @Override
+    public Comment createCommentAdmin(CommentRequest request, Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, CategoryNotFoundException, InvalidCategoryException {
+        ECommentCategory category = null;
+
+        User user = verifyUser(email);
+
+        Incident incident = verifyIncident(idIncident);
+
+        if(request.getCategory() == null) throw new CategoryNotFoundException();
+        try{
+            category = ECommentCategory.valueOf(request.getCategory().toUpperCase());
+        }catch(IllegalArgumentException e){
+            throw new InvalidCategoryException();
+        }
+
+        Comment comment = new Comment(request.getComment(),user,incident);
+        comment.setCategory(category);
+        comment.setDate(new Date());
+        commentRepository.save(comment);
+
+        if (category.equals(ECommentCategory.PUBLIC)){
+            notificationService.sendCommentAdminNotification(incident);
+        }
         return comment;
     }
 
     @Override
     public List<Comment> getComments(Long idIncident) throws IncidentNotFoundException {
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
+        Incident incident = verifyIncident(idIncident);
 
-        return commentRepository.findAllByIncident(incident.get());
+       List<Comment> comments = commentRepository.findAllByIncidentOrderByDateDesc(incident);
+        for (Comment comment: comments) {
+            if(comment.getUser().getId().equals(incident.getUser().getId())){
+                comment.setOwner(true);
+            }else{
+                comment.setOwner(false);
+            }
+        }
+        return comments;
+    }
+
+    @Override
+    public List<Comment> getPublicComments(Long idIncident) throws IncidentNotFoundException {
+        Incident incident = verifyIncident(idIncident);
+
+        List<Comment> comments = commentRepository.findAllByIncidentAndCategoryOrderByDateDesc(incident, ECommentCategory.PUBLIC);
+        for (Comment comment: comments) {
+            if(comment.getUser().getId().equals(incident.getUser().getId())){
+                comment.setOwner(true);
+            }else{
+                comment.setOwner(false);
+            }
+        }
+        return comments;
+    }
+
+    @Override
+    public List<Comment> getPrivateComments(Long idIncident) throws IncidentNotFoundException {
+        Incident incident = verifyIncident(idIncident);
+        return commentRepository.findAllByIncidentAndCategoryOrderByDateDesc(incident, ECommentCategory.PRIVATE);
     }
 
     @Override
     public Vote vote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, InvalidVoteException {
-        Optional<User> user = userRepository.findByEmail(email);
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
 
-        if(!user.isPresent()) throw new UserNotFoundException();
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
+        User user = verifyUser(email);
 
-        if(user.get().getEmail().equals(incident.get().getUser().getEmail())) throw new InvalidVoteException();
+        Incident incident = verifyIncident(idIncident);
 
-        Vote vote = new Vote(user.get(),incident.get());
+        if(user.getEmail().equals(incident.getUser().getEmail())) throw new InvalidVoteException();
 
+        Vote vote = new Vote(user,incident);
         voteRepository.save(vote);
-        notificationService.sendVoteNotification(user.get(),incident.get());
         return vote;
     }
 
     @Override
     public void unvote(Long idIncident, String email) throws UserNotFoundException, IncidentNotFoundException, VoteNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-        Optional<Incident> incident = incidentRepository.findById(idIncident);
 
-        if(!user.isPresent()) throw new UserNotFoundException();
-        if(!incident.isPresent()) throw new IncidentNotFoundException();
+        User user = verifyUser(email);
+        Incident incident = verifyIncident(idIncident);
 
-        Optional<Vote> vote = voteRepository.findByUserAndIncident(user.get(),incident.get());
+        Optional<Vote> vote = voteRepository.findByUserAndIncident(user,incident);
         if(vote.isPresent()){
             voteRepository.delete(vote.get());
         }else{
@@ -193,19 +291,169 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
-    public List<EIncidentState> getStates() {
-        return Arrays.asList(EIncidentState.values());
+    public List<ContameMapResponse> getStatesPublic() {
+        List<ContameMapResponse> publicStates = new ArrayList<>();
+        for (EIncidentStatePublic state: EIncidentStatePublic.values()) {
+            publicStates.add(new ContameMapResponse(state.name(), state.getValue()));
+        }
+        return publicStates;
     }
 
     @Override
-    public void changeState(Long id, String state) throws IncidentNotFoundException{
+    public List<ContameMapResponse> getStatesPrivate() {
+        List<ContameMapResponse> privateStates = new ArrayList<>();
+        for (EIncidentStatePrivate state: EIncidentStatePrivate.values()) {
+            privateStates.add(new ContameMapResponse(state.name(), state.getValue()));
+        }
+        return privateStates;
+    }
+
+
+    @Override
+    public void changeState(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, UserNotFoundException {
+        Incident incident = verifyIncident(id);
+
+        EIncidentStatePublic newState = EIncidentStatePublic.valueOf(request.getState());
+
+        changeStateIncident(incident,newState);
+
+        if(incident.getParent() != null){
+            changeStateFamily(incident,newState);
+        }else{
+            changeStateSons(incident,newState);
+        }
+
+        postCommentAdmin(request.getComment(),email, incident);
+    }
+
+    private void changeStateSons(Incident incident, EIncidentStatePublic newState){
+        List<Incident> sons = incidentRepository.findAllByParent(incident);
+        for (Incident son: sons) {
+            changeStateIncident(son, newState);
+        }
+    }
+    private void changeStateFamily(Incident incident, EIncidentStatePublic newState){
+        List<Incident> family = incidentRepository.findAllByParent(incident.getParent());
+        for (Incident familiar: family) {
+            if(!incident.getId().equals(familiar.getId())){
+                changeStateIncident(familiar, newState);
+            }
+        }
+        changeStateIncident(incident.getParent(), newState);
+    }
+
+    private void changeStateIncident(Incident incident, EIncidentStatePublic state){
+        if(state.equals(EIncidentStatePublic.RESUELTO) || state.equals(EIncidentStatePublic.INVALIDO)  ){
+            incident.setCompleteDate(new Date());
+        }
+        incident.setState(state);
+        incident.setUpdateDate(new Date());
+        incidentRepository.save(incident);
+        notificationService.sendChangeStateNotification(incident);
+
+    }
+
+    @Override
+    public void changeStatePrivate(Long id, ChangeStateRequest request, String email) throws IncidentNotFoundException, UserNotFoundException {
+        Incident incident = verifyIncident(id);
+
+        EIncidentStatePrivate newState = EIncidentStatePrivate.valueOf(request.getState());
+
+        changeStatePrivateIncident(incident,newState);
+
+        if(incident.getParent() != null){
+            changeStatePrivateFamily(incident,newState);
+        }else{
+            changeStatePrivateSons(incident,newState);
+        }
+
+        postCommentAdmin(request.getComment(),email, incident);
+    }
+
+    private void changeStatePrivateSons(Incident incident, EIncidentStatePrivate newState){
+        List<Incident> sons = incidentRepository.findAllByParent(incident);
+        for (Incident son: sons) {
+            changeStatePrivateIncident(son, newState);
+        }
+    }
+    private void changeStatePrivateFamily(Incident incident, EIncidentStatePrivate newState){
+        List<Incident> family = incidentRepository.findAllByParent(incident.getParent());
+        for (Incident familiar: family) {
+            if(!incident.getId().equals(familiar.getId())){
+                changeStatePrivateIncident(familiar, newState);
+            }
+        }
+        changeStatePrivateIncident(incident.getParent(), newState);
+    }
+
+    private void changeStatePrivateIncident(Incident incident, EIncidentStatePrivate state){
+        if(state.equals(EIncidentStatePrivate.RECHAZO_PRESUPUESTO) || state.equals(EIncidentStatePrivate.RESUELTO)  ){
+            incident.setCompleteDate(new Date());
+        }
+        incident.setStatePrivate(state);
+        incident.setUpdateDate(new Date());
+        incidentRepository.save(incident);
+    }
+
+    private void postCommentAdmin(String commentary, String email, Incident incident) throws UserNotFoundException {
+        User user = verifyUser(email);
+        Comment comment = new Comment(commentary,user,incident);
+        comment.setCategory(ECommentCategory.PRIVATE);
+        commentRepository.save(comment);
+    }
+
+    @Override
+    public void setFather(Long idSon, Long idFather) throws IncidentSonNotFoundException, IncidentFatherNotFoundException, SonHaveSonsException {
+        Optional<Incident> son = incidentRepository.findById(idSon);
+        if(!son.isPresent()) throw new IncidentSonNotFoundException();
+
+        Optional<Incident> father= incidentRepository.findById(idFather);
+        if(!father.isPresent()) throw new IncidentFatherNotFoundException();
+
+        if(!sonHaveNoSons(son.get())) throw new SonHaveSonsException();
+
+        son.get().setParent(father.get());
+        incidentRepository.save(son.get());
+
+    }
+
+    @Override
+    public Incident getFather(Long id) throws IncidentSonNotFoundException, IncidentFatherNotFoundException {
+        Optional<Incident> son = incidentRepository.findById(id);
+        if(!son.isPresent()) throw new IncidentSonNotFoundException();
+
+        if(son.get().getParent() == null) throw new IncidentFatherNotFoundException();
+
+        return son.get().getParent();
+    }
+
+    @Override
+    public List<Incident> getSons(Long id) throws IncidentFatherNotFoundException, IncidentSonNotFoundException {
+        Optional<Incident> father = incidentRepository.findById(id);
+        if(!father.isPresent()) throw new IncidentFatherNotFoundException();
+
+        List<Incident> sons = incidentRepository.findAllByParent(father.get());
+        if( sons.isEmpty()) throw new IncidentSonNotFoundException();
+
+        return sons;
+
+    }
+
+    private boolean sonHaveNoSons(Incident son) {
+        List<Incident> sons = incidentRepository.findAllByParent(son);
+        return sons.isEmpty();
+    }
+
+    private User verifyUser(String email) throws UserNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+        if(!user.isPresent()) throw new UserNotFoundException();
+        return user.get();
+    }
+
+    private Incident verifyIncident(Long id) throws IncidentNotFoundException {
         Optional<Incident> incident = incidentRepository.findById(id);
         if(!incident.isPresent()) throw new IncidentNotFoundException();
-        EIncidentState newState = EIncidentState.valueOf(state);
-        incident.get().setState(newState);
-        incident.get().setUpdateDate(new Date());
-        incidentRepository.save(incident.get());
-        notificationService.sendChangeStateNotification(incident.get());
+        return incident.get();
     }
 
 
