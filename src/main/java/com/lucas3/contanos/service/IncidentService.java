@@ -399,6 +399,7 @@ public class IncidentService implements IIncidentService {
         User user = verifyUser(email);
         Comment comment = new Comment(commentary,user,incident);
         comment.setCategory(ECommentCategory.PRIVATE);
+        comment.setDate(new Date());
         commentRepository.save(comment);
     }
 
