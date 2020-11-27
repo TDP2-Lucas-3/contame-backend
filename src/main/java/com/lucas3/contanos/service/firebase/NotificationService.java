@@ -109,7 +109,7 @@ public class NotificationService {
             request.setMessage(getChangeStateMessage(incident));
             request.setToken(incident.getUser().getFCMToken());
             data.put("incident", incident.getTitle());
-            data.put("state", incident.getState().toString());
+            data.put("state", incident.getState().getValue());
             fcmService.sendMessageToToken(data,request);
         }catch(Exception e){
             e.printStackTrace();
@@ -118,7 +118,7 @@ public class NotificationService {
 
     private String getChangeStateMessage(Incident incident){
         String incidentTitle = incident.getTitle();
-        String msg = "Tu incidencia "+ incidentTitle +" cambio de estado a " + incident.getState().toString();
+        String msg = "Tu incidencia "+ incidentTitle +" cambio de estado a " + incident.getState().getValue();
         return msg;
     }
 }

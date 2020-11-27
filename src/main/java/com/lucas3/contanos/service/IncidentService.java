@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class IncidentService implements IIncidentService {
@@ -174,16 +175,20 @@ public class IncidentService implements IIncidentService {
     @Override
     public List<ContameMapResponse> getCategoriesMap() {
         List<ContameMapResponse> response = new ArrayList<>();
+        List<ContameMapResponse> sorted = null;
         for ( EIncidentCategory cat: EIncidentCategory.values()) {
             response.add(new ContameMapResponse(cat.name(), cat.getValue()));
         }
-        return response;
+        sorted = response.stream().sorted(Comparator.comparing(ContameMapResponse::getKey)).collect(Collectors.toList());
+        return sorted;
     }
 
     @Override
     public List<String> getSubcategories(String category) {
         EIncidentCategory cat = EIncidentCategory.valueOf(category);
-        return subcategories.get(cat);
+        List<String> result = subcategories.get(cat);
+        Collections.sort(result);
+        return result ;
     }
 
 
@@ -322,8 +327,10 @@ public class IncidentService implements IIncidentService {
         }else{
             changeStateSons(incident,newState);
         }
+        if(request.getComment() != null && !request.getComment().isEmpty()){
+            postCommentAdmin(request.getComment(),email, incident);
+        }
 
-        postCommentAdmin(request.getComment(),email, incident);
     }
 
     private void changeStateSons(Incident incident, EIncidentStatePublic newState){
@@ -366,8 +373,10 @@ public class IncidentService implements IIncidentService {
         }else{
             changeStatePrivateSons(incident,newState);
         }
+        if(request.getComment() != null && !request.getComment().isEmpty()){
+            postCommentAdmin(request.getComment(),email, incident);
+        }
 
-        postCommentAdmin(request.getComment(),email, incident);
     }
 
     private void changeStatePrivateSons(Incident incident, EIncidentStatePrivate newState){
@@ -399,6 +408,7 @@ public class IncidentService implements IIncidentService {
         User user = verifyUser(email);
         Comment comment = new Comment(commentary,user,incident);
         comment.setCategory(ECommentCategory.PRIVATE);
+        comment.setDate(new Date());
         commentRepository.save(comment);
     }
 
