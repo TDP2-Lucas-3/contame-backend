@@ -2,10 +2,34 @@ package com.lucas3.contanos.model.response;
 
 import com.lucas3.contanos.entities.*;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class IncidentResponse {
+
+    private static final Map<EIncidentStatePublic, String> publicStateColor;
+    static {
+        Map<EIncidentStatePublic, String> map = new HashMap<>();
+        map.put(EIncidentStatePublic.ACEPTADO, "#000099");
+        map.put(EIncidentStatePublic.EN_PROCESO, "#0066ff");
+        map.put(EIncidentStatePublic.INGRESADO, "#ffff00");
+        map.put(EIncidentStatePublic.INVALIDO, "#ff0033");
+        map.put(EIncidentStatePublic.PENDIENTE_OBRA, "#330000");
+        map.put(EIncidentStatePublic.RESUELTO, "#66cc00");
+        publicStateColor = Collections.unmodifiableMap(map);
+    }
+
+    private static final Map<EIncidentStatePrivate, String> privateStateColor;
+    static {
+        Map<EIncidentStatePrivate, String> map = new HashMap<>();
+        map.put(EIncidentStatePrivate.INSPECCION, "#ffff00");
+        map.put(EIncidentStatePrivate.ASIGNADO_PROVEEDOR, "#00ff99");
+        map.put(EIncidentStatePrivate.PENDIENTE_OBRA, "#330000");
+        map.put(EIncidentStatePrivate.PRESUPUESTO_APROBADO, "#6600cc");
+        map.put(EIncidentStatePrivate.RECHAZO_PRESUPUESTO, "#ff0033");
+        map.put(EIncidentStatePrivate.RESUELTO, "#66cc00");
+        privateStateColor = Collections.unmodifiableMap(map);
+    }
+
 
     private Long id;
 
@@ -42,7 +66,11 @@ public class IncidentResponse {
 
     private String state;
 
+    private String stateColor;
+
     private String statePrivate;
+
+    private String statePrivateColor;
 
     private String category;
 
@@ -70,7 +98,11 @@ public class IncidentResponse {
         this.comments = incident.getComments();
 
         this.state = incident.getState().getValue();
+        this.stateColor = publicStateColor.get(incident.getState());
+
         this.statePrivate = incident.getStatePrivate().getValue();
+        this.statePrivateColor = privateStateColor.get(incident.getStatePrivate());
+
         this.category = incident.getCategory().getValue();
 
     }
@@ -233,5 +265,21 @@ public class IncidentResponse {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getStateColor() {
+        return stateColor;
+    }
+
+    public void setStateColor(String stateColor) {
+        this.stateColor = stateColor;
+    }
+
+    public String getStatePrivateColor() {
+        return statePrivateColor;
+    }
+
+    public void setStatePrivateColor(String statePrivateColor) {
+        this.statePrivateColor = statePrivateColor;
     }
 }
