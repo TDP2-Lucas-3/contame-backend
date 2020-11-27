@@ -201,7 +201,10 @@ public class IncidentService implements IIncidentService {
         comment.setCategory(ECommentCategory.PUBLIC);
         comment.setDate(new Date());
         commentRepository.save(comment);
-        notificationService.sendCommentUserNotification(user,incident);
+        if(!user.getId().equals(incident.getUser().getId())){
+            notificationService.sendCommentUserNotification(user,incident);
+        }
+
         return comment;
     }
 
