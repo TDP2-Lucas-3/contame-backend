@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class IncidentService implements IIncidentService {
@@ -174,16 +175,20 @@ public class IncidentService implements IIncidentService {
     @Override
     public List<ContameMapResponse> getCategoriesMap() {
         List<ContameMapResponse> response = new ArrayList<>();
+        List<ContameMapResponse> sorted = null;
         for ( EIncidentCategory cat: EIncidentCategory.values()) {
             response.add(new ContameMapResponse(cat.name(), cat.getValue()));
         }
-        return response;
+        sorted = response.stream().sorted(Comparator.comparing(ContameMapResponse::getKey)).collect(Collectors.toList());
+        return sorted;
     }
 
     @Override
     public List<String> getSubcategories(String category) {
         EIncidentCategory cat = EIncidentCategory.valueOf(category);
-        return subcategories.get(cat);
+        List<String> result = subcategories.get(cat);
+        Collections.sort(result);
+        return result ;
     }
 
 
