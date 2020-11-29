@@ -205,6 +205,12 @@ public class IncidentService implements IIncidentService {
             notificationService.sendCommentUserNotification(user,incident);
         }
 
+        if(comment.getUser().getId().equals(incident.getUser().getId())){
+            comment.setOwner(true);
+        }else{
+            comment.setOwner(false);
+        }
+
         return comment;
     }
 
