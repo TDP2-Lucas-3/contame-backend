@@ -105,11 +105,16 @@ public class NotificationService {
         try{
             Map<String,String> data = new HashMap<>();
             PushNotificationRequest request = new PushNotificationRequest();
-            request.setTitle(incident.getTitle());
+            request.setTitle(incident.getUser().getProfile().getName()+" " + incident.getUser().getProfile().getSurename());
             request.setMessage(getChangeStateMessage(incident));
             request.setToken(incident.getUser().getFCMToken());
             data.put("incident", incident.getTitle());
             data.put("state", incident.getState().getValue());
+            if(incident.getImages() != null && !incident.getImages().isEmpty()){
+                data.put("photo", incident.getImages().get(0));
+            }
+            data.put("userName", incident.getUser().getProfile().getName());
+            data.put("id", incident.getId().toString());
             fcmService.sendMessageToToken(data,request);
         }catch(Exception e){
             e.printStackTrace();
@@ -118,7 +123,7 @@ public class NotificationService {
 
     private String getChangeStateMessage(Incident incident){
         String incidentTitle = incident.getTitle();
-        String msg = "Tu incidencia "+ incidentTitle +" cambio de estado a " + incident.getState().getValue();
+        String msg = "Tu incidencia "+ incidentTitle +" cambió de estado a " + incident.getState().getValue();
         return msg;
     }
 }
