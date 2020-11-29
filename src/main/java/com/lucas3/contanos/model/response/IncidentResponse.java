@@ -9,11 +9,11 @@ public class IncidentResponse {
     private static final Map<EIncidentStatePublic, String> publicStateColor;
     static {
         Map<EIncidentStatePublic, String> map = new HashMap<>();
-        map.put(EIncidentStatePublic.ACEPTADO, "#000099");
+        map.put(EIncidentStatePublic.ACEPTADO, "#4262BA");
         map.put(EIncidentStatePublic.EN_PROCESO, "#0066ff");
         map.put(EIncidentStatePublic.INGRESADO, "#ffff00");
-        map.put(EIncidentStatePublic.INVALIDO, "#ff0033");
-        map.put(EIncidentStatePublic.PENDIENTE_OBRA, "#330000");
+        map.put(EIncidentStatePublic.INVALIDO, "#f7766d");
+        map.put(EIncidentStatePublic.PENDIENTE_OBRA, "#ff9900");
         map.put(EIncidentStatePublic.RESUELTO, "#66cc00");
         publicStateColor = Collections.unmodifiableMap(map);
     }
@@ -23,9 +23,9 @@ public class IncidentResponse {
         Map<EIncidentStatePrivate, String> map = new HashMap<>();
         map.put(EIncidentStatePrivate.INSPECCION, "#ffff00");
         map.put(EIncidentStatePrivate.ASIGNADO_PROVEEDOR, "#00ff99");
-        map.put(EIncidentStatePrivate.PENDIENTE_OBRA, "#330000");
+        map.put(EIncidentStatePrivate.PENDIENTE_OBRA, "#ff9900");
         map.put(EIncidentStatePrivate.PRESUPUESTO_APROBADO, "#6600cc");
-        map.put(EIncidentStatePrivate.RECHAZO_PRESUPUESTO, "#ff0033");
+        map.put(EIncidentStatePrivate.RECHAZO_PRESUPUESTO, "#f7766d");
         map.put(EIncidentStatePrivate.RESUELTO, "#66cc00");
         privateStateColor = Collections.unmodifiableMap(map);
     }
