@@ -73,7 +73,7 @@ public class NotificationService {
     private String getMessageUserComment(User user, Incident incident){
         String username = user.getProfile().getName() + " " + user.getProfile().getSurename();
         String incidentTitle = incident.getTitle();
-        String msg = username + " comento tu incidencia " + incidentTitle;
+        String msg = username + " comentó tu incidencia " + incidentTitle;
         return msg;
     }
 
