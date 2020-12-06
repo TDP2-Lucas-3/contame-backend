@@ -11,6 +11,7 @@ import com.lucas3.contanos.model.response.geocoding.LocationResponse;
 import com.lucas3.contanos.repository.*;
 import com.lucas3.contanos.service.firebase.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 
@@ -36,7 +37,7 @@ public class IncidentService implements IIncidentService {
     private ImgbbService imgbbService;
 
     @Autowired
-    private GeocodingService geocodingService;
+    private IGeocodingService geocodingService;
 
     @Autowired
     private NotificationService notificationService;
