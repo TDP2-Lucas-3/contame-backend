@@ -1,7 +1,9 @@
 package com.lucas3.contanos.repository;
 
 import com.lucas3.contanos.entities.EIncidentCategory;
+import com.lucas3.contanos.entities.EIncidentStatePublic;
 import com.lucas3.contanos.entities.Incident;
+import com.lucas3.contanos.model.filters.DataFilter;
 import com.lucas3.contanos.model.filters.IncidentFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,5 +38,10 @@ public class IncidentRepositoryCustomImpl implements  IncidentRepositoryCustom {
 
         return em.createQuery(cq).getResultList();
 
+    }
+
+    @Override
+    public Integer countByState(DataFilter filter, EIncidentStatePublic state) {
+        return null;
     }
 }

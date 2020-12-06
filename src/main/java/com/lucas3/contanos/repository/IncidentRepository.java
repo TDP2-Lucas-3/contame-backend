@@ -20,7 +20,7 @@ public interface IncidentRepository extends CrudRepository<Incident, Long>, Inci
 
     List<Incident> findAllByParent(Incident parent);
 
-    Integer countByState(EIncidentStatePublic state);
+    Integer countByCategory(EIncidentCategory category);
 
     Integer countByStateAndCategory(EIncidentStatePublic state, EIncidentCategory category);
 }
