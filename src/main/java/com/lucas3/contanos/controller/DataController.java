@@ -40,7 +40,7 @@ public class DataController {
     }
 
     @PostMapping(value= "/state")
-    public ResponseEntity<?> stateData(@RequestBody DataFilter filter){
+    public ResponseEntity<?> stateData(@RequestBody(required = false) DataFilter filter){
         try {
             return ResponseEntity.ok(dataService.getStatesData(filter));
         } catch (ParseException e) {
