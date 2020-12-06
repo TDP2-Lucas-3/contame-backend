@@ -121,6 +121,7 @@ public class DataService implements IDataService{
             caData.setValue(incidentRepository.countByCategory(category));
             totals.add(caData);
         }
+        totals.sort(Comparator.comparingInt(CategoryData::getValue));
         response.setCategoryTotals(totals);
         return response;
 
