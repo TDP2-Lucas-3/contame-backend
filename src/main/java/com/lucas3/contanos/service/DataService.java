@@ -6,6 +6,8 @@ import com.lucas3.contanos.model.response.geocoding.LocationResponse;
 import com.lucas3.contanos.repository.IncidentRepository;
 import com.lucas3.contanos.repository.ProfileRepository;
 import com.lucas3.contanos.repository.UserRepository;
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +26,7 @@ public class DataService implements IDataService{
     private static final double MIN_LON= -58.5213;
     private static final double MAX_LON= -58.3749;
 
-    private static final int CANT_INCIDENTS = 1000;
+    private static final int CANT_INCIDENTS = 700;
 
     @Autowired
     private IGeocodingService geocodingService;
@@ -140,15 +142,25 @@ public class DataService implements IDataService{
         Incident incident = new Incident("Incidente numero " + number.toString(),category,"Este incidente esta generado automaticamente", randomLat, randomLon);
 
         LocationResponse location = geocodingService.getLocationFromCoordinates(randomLat, randomLon);
-        incident.setLocation(location.getAddress());
-        incident.setHood(location.getHood());
+        if(location.getHood() != null){
+            incident.setLocation(location.getAddress());
+            incident.setHood(location.getHood());
 
-        incident.setUser(user);
-        incident.setState(statePublic);
-        incident.setStatePrivate(statePrivate);
-        incident.setSubcategory(type);
+            incident.setUser(user);
+            incident.setState(statePublic);
+            incident.setStatePrivate(statePrivate);
+            incident.setSubcategory(type);
 
-        incidentRepository.save(incident);
+            LocalDate d1 = new LocalDate(2020,1,1);
+            LocalDate d2 = new LocalDate(2020,12,31);
+            int days = Days.daysBetween(d1, d2).getDays();
+            LocalDate randomDate = d1.plusDays(RANDOM.nextInt(days+1));
+            incident.setCreationDate(randomDate.toDate());
+
+            incidentRepository.save(incident);
+
+        }
+
 
     }
 }
