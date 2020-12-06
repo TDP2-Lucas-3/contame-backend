@@ -13,7 +13,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(length = 1500)
     private String comment;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
