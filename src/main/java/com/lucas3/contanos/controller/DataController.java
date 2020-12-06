@@ -35,6 +35,11 @@ public class DataController {
 
     }
 
+    @PostMapping(value= "/state")
+    public ResponseEntity<?> stateData(){
+        return ResponseEntity.ok(dataService.getStatesData());
+    }
+
     private void validateToken(String token) throws InvalidTokenException {
         if (token.startsWith("Contame ")) {
             String secret = DigestUtils.sha256Hex(token.substring(8, token.length()));
