@@ -2,6 +2,7 @@ package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.*;
 import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
+import com.lucas3.contanos.model.filters.DataFilter;
 import com.lucas3.contanos.model.response.CategoryData;
 import com.lucas3.contanos.model.response.StateData;
 import com.lucas3.contanos.model.response.StateDataResponse;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.util.*;
 
 @Service
@@ -94,14 +96,14 @@ public class DataService implements IDataService{
 
 
     @Override
-    public StateDataResponse getStatesData() {
+    public StateDataResponse getStatesData(DataFilter filter) throws ParseException {
         StateDataResponse response = new StateDataResponse();
         List<CategoryData> totals = new ArrayList<>();
 
         for (EIncidentCategory category: EIncidentCategory.values()) {
             CategoryData caData = new CategoryData();
             caData.setCategory(category.getValue());
-            caData.setValue(incidentRepository.countByCategory(category));
+            caData.setValue(incidentRepository.countByCategory(filter,category));
             totals.add(caData);
         }
         totals.sort(Comparator.comparingInt(CategoryData::getValue).reversed());
@@ -117,7 +119,7 @@ public class DataService implements IDataService{
                 CategoryData caData = new CategoryData();
                 EIncidentCategory cat = EIncidentCategory.get(category.getCategory());
                 caData.setCategory(cat.getValue());
-                caData.setValue(incidentRepository.countByStateAndCategory(state,cat));
+                caData.setValue(incidentRepository.countByStateAndCategory(filter,state,cat));
                 categoryData.add(caData);
             }
             stateData.setCategories(categoryData);
