@@ -2,6 +2,9 @@ package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.*;
 import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
+import com.lucas3.contanos.model.response.CategoryData;
+import com.lucas3.contanos.model.response.StateData;
+import com.lucas3.contanos.model.response.StateDataResponse;
 import com.lucas3.contanos.model.response.geocoding.LocationResponse;
 import com.lucas3.contanos.repository.IncidentRepository;
 import com.lucas3.contanos.repository.ProfileRepository;
@@ -87,6 +90,32 @@ public class DataService implements IDataService{
         subcategories = Collections.unmodifiableMap(map);
     }
 
+
+
+
+    @Override
+    public StateDataResponse getStatesData() {
+        StateDataResponse response = new StateDataResponse();
+        List<StateData> data = new ArrayList<>();
+
+        for (EIncidentStatePublic state: EIncidentStatePublic.values()) {
+            StateData stateData = new StateData();
+            stateData.setName(state.name());
+            stateData.setValue(incidentRepository.countByState(state));
+            List<CategoryData> categoryData = new ArrayList<>();
+            for (EIncidentCategory category: EIncidentCategory.values()) {
+                CategoryData caData = new CategoryData();
+                caData.setCategory(category.name());
+                caData.setValue(incidentRepository.countByStateAndCategory(state,category));
+                categoryData.add(caData);
+            }
+            stateData.setCategories(categoryData);
+            data.add(stateData);
+        }
+        response.setData(data);
+        return response;
+
+    }
 
     @Async
     @Override
