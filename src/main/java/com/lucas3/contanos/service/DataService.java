@@ -96,23 +96,6 @@ public class DataService implements IDataService{
     @Override
     public StateDataResponse getStatesData() {
         StateDataResponse response = new StateDataResponse();
-        List<StateData> data = new ArrayList<>();
-
-        for (EIncidentStatePublic state: EIncidentStatePublic.values()) {
-            StateData stateData = new StateData();
-            stateData.setName(state.getValue());
-            List<CategoryData> categoryData = new ArrayList<>();
-            for (EIncidentCategory category: EIncidentCategory.values()) {
-                CategoryData caData = new CategoryData();
-                caData.setCategory(category.getValue());
-                caData.setValue(incidentRepository.countByStateAndCategory(state,category));
-                categoryData.add(caData);
-            }
-            stateData.setCategories(categoryData);
-            data.add(stateData);
-        }
-        response.setData(data);
-
         List<CategoryData> totals = new ArrayList<>();
 
         for (EIncidentCategory category: EIncidentCategory.values()) {
@@ -123,6 +106,26 @@ public class DataService implements IDataService{
         }
         totals.sort(Comparator.comparingInt(CategoryData::getValue).reversed());
         response.setCategoryTotals(totals);
+
+        List<StateData> data = new ArrayList<>();
+
+        for (EIncidentStatePublic state: EIncidentStatePublic.values()) {
+            StateData stateData = new StateData();
+            stateData.setName(state.getValue());
+            List<CategoryData> categoryData = new ArrayList<>();
+            for (CategoryData category: totals) {
+                CategoryData caData = new CategoryData();
+                EIncidentCategory cat = EIncidentCategory.get(category.getCategory());
+                caData.setCategory(cat.getValue());
+                caData.setValue(incidentRepository.countByStateAndCategory(state,cat));
+                categoryData.add(caData);
+            }
+            stateData.setCategories(categoryData);
+            data.add(stateData);
+        }
+        response.setData(data);
+
+
         return response;
 
     }
