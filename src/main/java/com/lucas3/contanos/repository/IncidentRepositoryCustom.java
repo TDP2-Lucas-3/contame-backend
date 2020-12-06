@@ -17,5 +17,5 @@ public interface IncidentRepositoryCustom {
 
     Integer countByCategory(DataFilter filter, EIncidentCategory category) throws ParseException;
 
-    Integer countByStateAndCategory(DataFilter filter, EIncidentStatePublic state, EIncidentCategory category);
+    Integer countByStateAndCategory(DataFilter filter, EIncidentStatePublic state, EIncidentCategory category) throws ParseException;
 }

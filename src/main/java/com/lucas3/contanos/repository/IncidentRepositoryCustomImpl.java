@@ -48,6 +48,7 @@ public class IncidentRepositoryCustomImpl implements  IncidentRepositoryCustom {
 
     @Override
     public Integer countByCategory(DataFilter filter, EIncidentCategory category) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Incident> cq = cb.createQuery(Incident.class);
 
@@ -57,35 +58,63 @@ public class IncidentRepositoryCustomImpl implements  IncidentRepositoryCustom {
         if (filter.getHood() != null && !filter.getHood().isEmpty()) {
             predicates.add(cb.equal(incident.get("hood"), filter.getHood()));
         }
-/*
+
         if(filter.getCreateDate() != null && !filter.getCreateDate().isEmpty()){
-            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
-            String myDate = "17-04-2011";
-            // Create date 17-04-2011 - 00h00
             Date minDate = formatter.parse(filter.getCreateDate());
-            // Create date 18-04-2011 - 00h00
-            // -> We take the 1st date and add it 1 day in millisecond thanks to a useful and not so known class
             Date maxDate = new Date(minDate.getTime() + TimeUnit.DAYS.toMillis(1));
-            Conjunction and = Restrictions.conjunction();
-            // The order date must be >= 17-04-2011 - 00h00
-            and.add( Restrictions.ge("orderDate", minDate) );
-            // And the order date must be < 18-04-2011 - 00h00
-            and.add( Restrictions.lt("orderDate", maxDate) );
-            predicates.add(cb.ge(incident.get("createDate"),maxDate));
+            predicates.add(cb.greaterThanOrEqualTo(incident.get("creationDate"),minDate));
+            predicates.add(cb.lessThanOrEqualTo(incident.get("creationDate"), maxDate));
         }
 
-        cq.where(predicates.toArray(new Predicate[0]));
-        cq.where(an)
+        if(filter.getCompleteDate() != null && !filter.getCompleteDate().isEmpty()){
+            Date minDate = formatter.parse(filter.getCompleteDate());
+            Date maxDate = new Date(minDate.getTime() + TimeUnit.DAYS.toMillis(1));
+            predicates.add(cb.greaterThanOrEqualTo(incident.get("completeDate"),minDate));
+            predicates.add(cb.lessThanOrEqualTo(incident.get("completeDate"), maxDate));
+        }
 
- */
+        predicates.add(cb.equal(incident.get("category"), category));
+
+        cq.where(predicates.toArray(new Predicate[0]));
 
         return em.createQuery(cq).getResultList().size();
 
     }
 
     @Override
-    public Integer countByStateAndCategory(DataFilter filter, EIncidentStatePublic state, EIncidentCategory category) {
-        return null;
+    public Integer countByStateAndCategory(DataFilter filter, EIncidentStatePublic state, EIncidentCategory category) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Incident> cq = cb.createQuery(Incident.class);
+
+        Root<Incident> incident = cq.from(Incident.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (filter.getHood() != null && !filter.getHood().isEmpty()) {
+            predicates.add(cb.equal(incident.get("hood"), filter.getHood()));
+        }
+
+        if(filter.getCreateDate() != null && !filter.getCreateDate().isEmpty()){
+            Date minDate = formatter.parse(filter.getCreateDate());
+            Date maxDate = new Date(minDate.getTime() + TimeUnit.DAYS.toMillis(1));
+            predicates.add(cb.greaterThanOrEqualTo(incident.get("creationDate"),minDate));
+            predicates.add(cb.lessThanOrEqualTo(incident.get("creationDate"), maxDate));
+        }
+
+        if(filter.getCompleteDate() != null && !filter.getCompleteDate().isEmpty()){
+            Date minDate = formatter.parse(filter.getCompleteDate());
+            Date maxDate = new Date(minDate.getTime() + TimeUnit.DAYS.toMillis(1));
+            predicates.add(cb.greaterThanOrEqualTo(incident.get("completeDate"),minDate));
+            predicates.add(cb.lessThanOrEqualTo(incident.get("completeDate"), maxDate));
+        }
+
+        predicates.add(cb.equal(incident.get("category"), category));
+        predicates.add(cb.equal(incident.get("state"),state));
+
+        cq.where(predicates.toArray(new Predicate[0]));
+
+        return em.createQuery(cq).getResultList().size();
+
     }
 
 
