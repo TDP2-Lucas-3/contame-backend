@@ -42,7 +42,12 @@ public class DataController {
     @PostMapping(value= "/state")
     public ResponseEntity<?> stateData(@RequestBody(required = false) DataFilter filter){
         try {
-            return ResponseEntity.ok(dataService.getStatesData(filter));
+            if(filter != null){
+                return ResponseEntity.ok(dataService.getStatesData(filter));
+            }else{
+                return ResponseEntity.ok(dataService.getStatesData(new DataFilter()));
+            }
+
         } catch (ParseException e) {
             return ResponseEntity.badRequest().body(new StandResponse("Fecha en formano incorrecto " + filter.getCompleteDate()));
         }
