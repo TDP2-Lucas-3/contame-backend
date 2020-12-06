@@ -47,6 +47,21 @@ public class IncidentRepositoryCustomImpl implements  IncidentRepositoryCustom {
     }
 
     @Override
+    public List<Incident> findAll(EIncidentCategory category) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Incident> cq = cb.createQuery(Incident.class);
+
+        Root<Incident> incident = cq.from(Incident.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        predicates.add(cb.equal(incident.get("category"), category));
+
+        cq.where(predicates.toArray(new Predicate[0]));
+
+        return em.createQuery(cq).getResultList();
+    }
+
+    @Override
     public Integer countByCategory(DataFilter filter, EIncidentCategory category) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         CriteriaBuilder cb = em.getCriteriaBuilder();
