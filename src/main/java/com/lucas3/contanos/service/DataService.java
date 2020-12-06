@@ -132,6 +132,15 @@ public class DataService implements IDataService{
 
     }
 
+    @Override
+    public List<Incident> getIncidents(String category) {
+        if(category != null && !category.isEmpty()){
+            EIncidentCategory cat = EIncidentCategory.get(category);
+            return incidentRepository.findAll(cat);
+        }
+        return incidentRepository.findAll();
+    }
+
     @Async
     @Override
     public void loadData() {
