@@ -1,9 +1,7 @@
 package com.lucas3.contanos.controller;
 
-import com.lucas3.contanos.entities.EIncidentCategory;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.*;
-import com.lucas3.contanos.model.filters.IncidentFilter;
 import com.lucas3.contanos.model.request.ChangeStateRequest;
 import com.lucas3.contanos.model.request.CommentRequest;
 import com.lucas3.contanos.model.request.IncidentRequest;
@@ -11,7 +9,7 @@ import com.lucas3.contanos.model.response.ContameMapResponse;
 import com.lucas3.contanos.model.response.IncidentResponse;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.security.jwt.JwtUtils;
-import com.lucas3.contanos.service.IncidentService;
+import com.lucas3.contanos.service.IIncidentService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +26,7 @@ import java.util.List;
 public class IncidentController {
 
     @Autowired
-    private IncidentService incidentService;
+    private IIncidentService incidentService;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -246,6 +244,8 @@ public class IncidentController {
             return ResponseEntity.badRequest().body(new StandResponse("Estado invalido"));
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El usuario administrador existe"));
+        } catch (StateNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El estado no existe"));
         }
     }
 
@@ -261,6 +261,8 @@ public class IncidentController {
             return ResponseEntity.badRequest().body(new StandResponse("Estado invalido"));
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(new StandResponse("El usuario administrador existe"));
+        } catch (StateNotFoundException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("El estado no existe"));
         }
     }
 
