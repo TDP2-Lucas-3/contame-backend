@@ -6,6 +6,8 @@ public class StateDataResponse {
 
     private List<StateData> data;
 
+    private List<CategoryData> categoryTotals;
+
     public StateDataResponse() {
     }
 
@@ -19,5 +21,13 @@ public class StateDataResponse {
 
     public void setData(List<StateData> data) {
         this.data = data;
+    }
+
+    public List<CategoryData> getCategoryTotals() {
+        return categoryTotals;
+    }
+
+    public void setCategoryTotals(List<CategoryData> categoryTotals) {
+        this.categoryTotals = categoryTotals;
     }
 }

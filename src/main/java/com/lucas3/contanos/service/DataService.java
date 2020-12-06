@@ -100,12 +100,11 @@ public class DataService implements IDataService{
 
         for (EIncidentStatePublic state: EIncidentStatePublic.values()) {
             StateData stateData = new StateData();
-            stateData.setName(state.name());
-            stateData.setValue(incidentRepository.countByState(state));
+            stateData.setName(state.getValue());
             List<CategoryData> categoryData = new ArrayList<>();
             for (EIncidentCategory category: EIncidentCategory.values()) {
                 CategoryData caData = new CategoryData();
-                caData.setCategory(category.name());
+                caData.setCategory(category.getValue());
                 caData.setValue(incidentRepository.countByStateAndCategory(state,category));
                 categoryData.add(caData);
             }
@@ -113,6 +112,16 @@ public class DataService implements IDataService{
             data.add(stateData);
         }
         response.setData(data);
+
+        List<CategoryData> totals = new ArrayList<>();
+
+        for (EIncidentCategory category: EIncidentCategory.values()) {
+            CategoryData caData = new CategoryData();
+            caData.setCategory(category.getValue());
+            caData.setValue(incidentRepository.countByCategory(category));
+            totals.add(caData);
+        }
+        response.setCategoryTotals(totals);
         return response;
 
     }
