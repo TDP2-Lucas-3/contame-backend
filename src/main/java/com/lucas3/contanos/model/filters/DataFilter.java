@@ -5,17 +5,17 @@ public class DataFilter {
 
     private String hood;
 
-    private String createDate;
+    private String from;
 
-    private String completeDate;
+    private String to;
 
     public DataFilter() {
     }
 
-    public DataFilter(String hood, String createDate, String completeDate) {
+    public DataFilter(String hood, String from, String to) {
         this.hood = hood;
-        this.createDate = createDate;
-        this.completeDate = completeDate;
+        this.from = from;
+        this.to = to;
     }
 
     public String getHood() {
@@ -26,19 +26,19 @@ public class DataFilter {
         this.hood = hood;
     }
 
-    public String getCreateDate() {
-        return createDate;
+    public String getFrom() {
+        return from;
     }
 
-    public void setCreateDate(String createDate) {
-        this.createDate = createDate;
+    public void setFrom(String from) {
+        this.from = from;
     }
 
-    public String getCompleteDate() {
-        return completeDate;
+    public String getTo() {
+        return to;
     }
 
-    public void setCompleteDate(String completeDate) {
-        this.completeDate = completeDate;
+    public void setTo(String to) {
+        this.to = to;
     }
 }

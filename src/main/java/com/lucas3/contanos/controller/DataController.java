@@ -3,6 +3,7 @@ package com.lucas3.contanos.controller;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.exception.InvalidTokenException;
 import com.lucas3.contanos.model.filters.DataFilter;
+import com.lucas3.contanos.model.request.DataLoadRequest;
 import com.lucas3.contanos.model.response.IncidentResponse;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.service.IDataService;
@@ -41,6 +42,18 @@ public class DataController {
 
     }
 
+    @PostMapping(value= "/load/custom")
+    public ResponseEntity<?> loadDataCustom(@RequestHeader("Authorization") String token, @RequestBody DataLoadRequest request){
+        try{
+            validateToken(token);
+            dataService.loadDataCustom(request);
+            return ResponseEntity.ok().build();
+        } catch (InvalidTokenException e) {
+            return ResponseEntity.badRequest().body(new StandResponse("CREDENCIALES INVALIDAS"));
+        }
+
+    }
+
     @PostMapping(value= "/state")
     public ResponseEntity<?> stateData(@RequestBody(required = false) DataFilter filter){
         try {
@@ -51,7 +64,7 @@ public class DataController {
             }
 
         } catch (ParseException e) {
-            return ResponseEntity.badRequest().body(new StandResponse("Fecha en formano incorrecto " + filter.getCompleteDate()));
+            return ResponseEntity.badRequest().body(new StandResponse("Fecha en formano incorrecto " + filter.getFrom()));
         }
     }
 

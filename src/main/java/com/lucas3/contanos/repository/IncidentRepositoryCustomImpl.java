@@ -74,18 +74,14 @@ public class IncidentRepositoryCustomImpl implements  IncidentRepositoryCustom {
             predicates.add(cb.equal(incident.get("hood"), filter.getHood()));
         }
 
-        if(filter.getCreateDate() != null && !filter.getCreateDate().isEmpty()){
-            Date minDate = formatter.parse(filter.getCreateDate());
-            Date maxDate = new Date(minDate.getTime() + TimeUnit.DAYS.toMillis(1));
+        if(filter.getFrom()!= null && !filter.getFrom().isEmpty()){
+            Date minDate = formatter.parse(filter.getFrom());
             predicates.add(cb.greaterThanOrEqualTo(incident.get("creationDate"),minDate));
-            predicates.add(cb.lessThanOrEqualTo(incident.get("creationDate"), maxDate));
         }
 
-        if(filter.getCompleteDate() != null && !filter.getCompleteDate().isEmpty()){
-            Date minDate = formatter.parse(filter.getCompleteDate());
-            Date maxDate = new Date(minDate.getTime() + TimeUnit.DAYS.toMillis(1));
-            predicates.add(cb.greaterThanOrEqualTo(incident.get("completeDate"),minDate));
-            predicates.add(cb.lessThanOrEqualTo(incident.get("completeDate"), maxDate));
+        if(filter.getTo() != null && !filter.getTo().isEmpty()){
+            Date maxDate = formatter.parse(filter.getTo());
+            predicates.add(cb.lessThanOrEqualTo(incident.get("creationDate"), maxDate));
         }
 
         predicates.add(cb.equal(incident.get("category"), category));
@@ -108,19 +104,14 @@ public class IncidentRepositoryCustomImpl implements  IncidentRepositoryCustom {
         if (filter.getHood() != null && !filter.getHood().isEmpty()) {
             predicates.add(cb.equal(incident.get("hood"), filter.getHood()));
         }
-
-        if(filter.getCreateDate() != null && !filter.getCreateDate().isEmpty()){
-            Date minDate = formatter.parse(filter.getCreateDate());
-            Date maxDate = new Date(minDate.getTime() + TimeUnit.DAYS.toMillis(1));
+        if(filter.getFrom()!= null && !filter.getFrom().isEmpty()){
+            Date minDate = formatter.parse(filter.getFrom());
             predicates.add(cb.greaterThanOrEqualTo(incident.get("creationDate"),minDate));
-            predicates.add(cb.lessThanOrEqualTo(incident.get("creationDate"), maxDate));
         }
 
-        if(filter.getCompleteDate() != null && !filter.getCompleteDate().isEmpty()){
-            Date minDate = formatter.parse(filter.getCompleteDate());
-            Date maxDate = new Date(minDate.getTime() + TimeUnit.DAYS.toMillis(1));
-            predicates.add(cb.greaterThanOrEqualTo(incident.get("completeDate"),minDate));
-            predicates.add(cb.lessThanOrEqualTo(incident.get("completeDate"), maxDate));
+        if(filter.getTo() != null && !filter.getTo().isEmpty()){
+            Date maxDate = formatter.parse(filter.getTo());
+            predicates.add(cb.lessThanOrEqualTo(incident.get("creationDate"), maxDate));
         }
 
         predicates.add(cb.equal(incident.get("category"), category));
