@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*", methods= {RequestMethod.POST})
+@CrossOrigin(origins = "*", methods= {RequestMethod.GET,RequestMethod.POST})
 @Api(value = "Api de para la carga de la aplicacion", description = "API para la carga de datos de la aplicacion")
 @RequestMapping("/data")
 public class DataController {
