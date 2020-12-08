@@ -13,7 +13,7 @@ import java.util.List;
 public class MobileController {
 
     @GetMapping(value= "/report")
-    public String redirect(@RequestParam String id){
+    public String redirect(@RequestParam String reportId){
         return "redirect";
     }
 
