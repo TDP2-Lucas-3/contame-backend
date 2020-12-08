@@ -2,6 +2,12 @@ package com.lucas3.contanos.service;
 
 import com.lucas3.contanos.entities.*;
 import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
+import com.lucas3.contanos.model.filters.DataFilter;
+import com.lucas3.contanos.model.request.DataLoadRequest;
+import com.lucas3.contanos.model.response.CategoryData;
+import com.lucas3.contanos.model.response.HoodData;
+import com.lucas3.contanos.model.response.StateData;
+import com.lucas3.contanos.model.response.StateDataResponse;
 import com.lucas3.contanos.model.response.geocoding.LocationResponse;
 import com.lucas3.contanos.repository.IncidentRepository;
 import com.lucas3.contanos.repository.ProfileRepository;
@@ -13,6 +19,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.xml.crypto.Data;
+import java.text.ParseException;
 import java.util.*;
 
 @Service
@@ -88,6 +96,75 @@ public class DataService implements IDataService{
     }
 
 
+
+
+    @Override
+    public StateDataResponse getStatesData(DataFilter filter) throws ParseException {
+        StateDataResponse response = new StateDataResponse();
+        List<CategoryData> totals = new ArrayList<>();
+
+        for (EIncidentCategory category: EIncidentCategory.values()) {
+            CategoryData caData = new CategoryData();
+            caData.setCategory(category.getValue());
+            caData.setValue(incidentRepository.countByCategory(filter,category));
+            totals.add(caData);
+        }
+        totals.sort(Comparator.comparingInt(CategoryData::getValue).reversed());
+        response.setCategoryTotals(totals);
+
+        List<StateData> data = new ArrayList<>();
+
+        for (EIncidentStatePublic state: EIncidentStatePublic.values()) {
+            StateData stateData = new StateData();
+            stateData.setName(state.getValue());
+            List<CategoryData> categoryData = new ArrayList<>();
+            for (CategoryData category: totals) {
+                CategoryData caData = new CategoryData();
+                EIncidentCategory cat = EIncidentCategory.get(category.getCategory());
+                caData.setCategory(cat.getValue());
+                caData.setValue(incidentRepository.countByStateAndCategory(filter,state,cat));
+                categoryData.add(caData);
+            }
+            stateData.setCategories(categoryData);
+            data.add(stateData);
+        }
+        response.setData(data);
+
+
+        return response;
+
+    }
+
+    @Override
+    public List<Incident> getIncidents(String category) {
+        if(category != null && !category.isEmpty()){
+            EIncidentCategory cat = EIncidentCategory.get(category);
+            return incidentRepository.findAllByCategory(cat);
+        }
+        return incidentRepository.findAll();
+    }
+
+    @Override
+    public List<HoodData> getHoodRanking(String category) {
+        List<HoodData> data = new ArrayList<>();
+        List<String> hoods = incidentRepository.findDistinctHood();
+
+        if(category != null && !category.isEmpty()) {
+            EIncidentCategory cat = EIncidentCategory.get(category);
+            for (String hood: hoods) {
+                HoodData dHood = new HoodData(hood, incidentRepository.countByCategoryAndHood(cat,hood));
+                data.add(dHood);
+            }
+        }else{
+            for (String hood: hoods) {
+                HoodData dHood = new HoodData(hood, incidentRepository.countByHood(hood));
+                data.add(dHood);
+            }
+        }
+        data.sort(Comparator.comparingInt(HoodData::getValue).reversed());
+        return data;
+    }
+
     @Async
     @Override
     public void loadData() {
@@ -102,6 +179,23 @@ public class DataService implements IDataService{
         } catch (InterruptedException | FailedReverseGeocodeException e) {
             e.printStackTrace();
         }
+    }
+
+    @Async
+    @Override
+    public void loadDataCustom(DataLoadRequest request) {
+        try {
+            int sizeIncidents = incidentRepository.findAll().size();
+            User user = getUser();
+            for (int i = 0; i <request.getSize(); i++) {
+                createRandomIncident(i+sizeIncidents, user,request);
+                Thread.sleep(1000);
+            }
+            System.out.println("TERMINE EL TRABAJO");
+        } catch (InterruptedException | FailedReverseGeocodeException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private User getUser(){
@@ -160,7 +254,44 @@ public class DataService implements IDataService{
             incidentRepository.save(incident);
 
         }
+    }
 
+    private void createRandomIncident(Integer number, User user, DataLoadRequest request) throws FailedReverseGeocodeException{
+        List<EIncidentCategory> categories = Arrays.asList(EIncidentCategory.values());
+        EIncidentCategory category = categories.get(request.getIndex());
 
+        List<String> types = subcategories.get(category);
+        String type = types.get(request.getIndex());
+
+        List<EIncidentStatePublic> publicStates = Arrays.asList(EIncidentStatePublic.values());
+        EIncidentStatePublic statePublic = publicStates.get(RANDOM.nextInt(categories.size()));
+
+        List<EIncidentStatePrivate> privateStates = Arrays.asList(EIncidentStatePrivate.values());
+        EIncidentStatePrivate statePrivate = privateStates.get(RANDOM.nextInt(privateStates.size()));
+
+        double randomLat = request.getLat() + RANDOM.nextDouble() * 0.01;
+        double randomLon = request.getLon() + RANDOM.nextDouble() * 0.01;
+
+        Incident incident = new Incident("Incidente numero " + number.toString(),category,"Este incidente esta generado automaticamente", randomLat, randomLon);
+
+        LocationResponse location = geocodingService.getLocationFromCoordinates(randomLat, randomLon);
+        if(location.getHood() != null){
+            incident.setLocation(location.getAddress());
+            incident.setHood(location.getHood());
+
+            incident.setUser(user);
+            incident.setState(statePublic);
+            incident.setStatePrivate(statePrivate);
+            incident.setSubcategory(type);
+
+            LocalDate d1 = new LocalDate(2020,1,1);
+            LocalDate d2 = new LocalDate(2020,12,31);
+            int days = Days.daysBetween(d1, d2).getDays();
+            LocalDate randomDate = d1.plusDays(RANDOM.nextInt(days+1));
+            incident.setCreationDate(randomDate.toDate());
+
+            incidentRepository.save(incident);
+
+        }
     }
 }
