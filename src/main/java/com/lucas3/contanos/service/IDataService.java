@@ -3,6 +3,7 @@ package com.lucas3.contanos.service;
 import com.lucas3.contanos.entities.Incident;
 import com.lucas3.contanos.model.filters.DataFilter;
 import com.lucas3.contanos.model.request.DataLoadRequest;
+import com.lucas3.contanos.model.response.HoodData;
 import com.lucas3.contanos.model.response.StateDataResponse;
 
 import java.text.ParseException;
@@ -17,6 +18,8 @@ public interface IDataService {
     StateDataResponse getStatesData(DataFilter dataFilter) throws ParseException;
 
     List<Incident> getIncidents(String category);
+
+    List<HoodData> getHoodRanking(String category);
 
 
 }
