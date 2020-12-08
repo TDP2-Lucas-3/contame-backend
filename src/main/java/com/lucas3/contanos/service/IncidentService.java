@@ -163,6 +163,11 @@ public class IncidentService implements IIncidentService {
     }
 
     @Override
+    public Incident getIncidentById(Long id) throws IncidentNotFoundException{
+        return verifyIncident(id);
+    }
+
+    @Override
     public List<String> getCategories() {
         List<String> result = new ArrayList<>();
         EIncidentCategory[] categories = EIncidentCategory.values();
