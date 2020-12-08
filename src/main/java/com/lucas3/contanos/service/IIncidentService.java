@@ -21,6 +21,9 @@ public interface IIncidentService {
 
     Incident getIncidentById(Long id, String email) throws IncidentNotFoundException, UserNotFoundException;
 
+    Incident getIncidentById(Long id) throws IncidentNotFoundException;
+
+
     List<String> getCategories();
 
     List<ContameMapResponse> getCategoriesMap();
