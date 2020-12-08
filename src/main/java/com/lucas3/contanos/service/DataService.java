@@ -5,6 +5,7 @@ import com.lucas3.contanos.model.exception.FailedReverseGeocodeException;
 import com.lucas3.contanos.model.filters.DataFilter;
 import com.lucas3.contanos.model.request.DataLoadRequest;
 import com.lucas3.contanos.model.response.CategoryData;
+import com.lucas3.contanos.model.response.HoodData;
 import com.lucas3.contanos.model.response.StateData;
 import com.lucas3.contanos.model.response.StateDataResponse;
 import com.lucas3.contanos.model.response.geocoding.LocationResponse;
@@ -138,9 +139,30 @@ public class DataService implements IDataService{
     public List<Incident> getIncidents(String category) {
         if(category != null && !category.isEmpty()){
             EIncidentCategory cat = EIncidentCategory.get(category);
-            return incidentRepository.findAll(cat);
+            return incidentRepository.findAllByCategory(cat);
         }
         return incidentRepository.findAll();
+    }
+
+    @Override
+    public List<HoodData> getHoodRanking(String category) {
+        List<HoodData> data = new ArrayList<>();
+        List<String> hoods = incidentRepository.findDistinctHood();
+
+        if(category != null && !category.isEmpty()) {
+            EIncidentCategory cat = EIncidentCategory.get(category);
+            for (String hood: hoods) {
+                HoodData dHood = new HoodData(hood, incidentRepository.countByCategoryAndHood(cat,hood));
+                data.add(dHood);
+            }
+        }else{
+            for (String hood: hoods) {
+                HoodData dHood = new HoodData(hood, incidentRepository.countByHood(hood));
+                data.add(dHood);
+            }
+        }
+        data.sort(Comparator.comparingInt(HoodData::getValue).reversed());
+        return data;
     }
 
     @Async

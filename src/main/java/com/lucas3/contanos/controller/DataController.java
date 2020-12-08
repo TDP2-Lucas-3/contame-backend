@@ -5,6 +5,7 @@ import com.lucas3.contanos.model.exception.InvalidTokenException;
 import com.lucas3.contanos.model.filters.DataFilter;
 import com.lucas3.contanos.model.request.DataLoadRequest;
 import com.lucas3.contanos.model.response.IncidentResponse;
+import com.lucas3.contanos.model.response.MapDataResponse;
 import com.lucas3.contanos.model.response.StandResponse;
 import com.lucas3.contanos.service.IDataService;
 import io.swagger.annotations.Api;
@@ -70,10 +71,14 @@ public class DataController {
 
     @GetMapping(value= "/map")
     public ResponseEntity<?> mapData(@RequestParam(required = false) String category){
-        List<IncidentResponse> response = new ArrayList<>();
+        MapDataResponse response = new MapDataResponse();
+        List<IncidentResponse> incidents = new ArrayList<>();
         for (Incident incident: dataService.getIncidents(category)) {
-            response.add(new IncidentResponse(incident));
+            incidents.add(new IncidentResponse(incident));
         }
+        response.setIncidents(incidents);
+        response.setHoodRanking(dataService.getHoodRanking(category));
+
         return ResponseEntity.ok(response);
     }
 
