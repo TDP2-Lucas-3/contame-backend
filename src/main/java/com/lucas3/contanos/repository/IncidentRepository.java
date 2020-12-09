@@ -33,4 +33,7 @@ public interface IncidentRepository extends CrudRepository<Incident, Long>, Inci
 
     @Query("SELECT DISTINCT i.hood FROM Incident i")
     List<String> findDistinctHood();
+
+    @Query("SELECT DISTINCT i.hood FROM Incident i ORDER BY i.hood ASC")
+    List<String> findDistinctHoodOrder();
 }
