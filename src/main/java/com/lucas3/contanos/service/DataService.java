@@ -101,6 +101,11 @@ public class DataService implements IDataService{
     @Override
     public StateDataResponse getStatesData(DataFilter filter) throws ParseException {
         StateDataResponse response = new StateDataResponse();
+
+        List<String> hoods = incidentRepository.findDistinctHood();
+        Collections.sort(hoods);
+        response.setHoods(hoods);
+
         List<CategoryData> totals = new ArrayList<>();
 
         for (EIncidentCategory category: EIncidentCategory.values()) {

@@ -8,6 +8,8 @@ public class StateDataResponse {
 
     private List<CategoryData> categoryTotals;
 
+    private List<String> hoods;
+
     public StateDataResponse() {
     }
 
@@ -29,5 +31,13 @@ public class StateDataResponse {
 
     public void setCategoryTotals(List<CategoryData> categoryTotals) {
         this.categoryTotals = categoryTotals;
+    }
+
+    public List<String> getHoods() {
+        return hoods;
+    }
+
+    public void setHoods(List<String> hoods) {
+        this.hoods = hoods;
     }
 }
