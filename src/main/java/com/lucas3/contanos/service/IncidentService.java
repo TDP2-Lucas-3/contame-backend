@@ -112,7 +112,10 @@ public class IncidentService implements IIncidentService {
         incident.setSubcategory(request.getSubcategory());
 
         incidentRepository.save(incident);
-        notificationService.sendIncidentNotification(user,incident);
+        if(user.getFCMToken() != null){
+            notificationService.sendIncidentNotification(user,incident);
+        }
+
 
         return incident;
     }
@@ -337,32 +340,12 @@ public class IncidentService implements IIncidentService {
 
         changeStateIncident(incident,newState);
 
-        if(incident.getParent() != null){
-            changeStateFamily(incident,newState);
-        }else{
-            changeStateSons(incident,newState);
-        }
         if(request.getComment() != null && !request.getComment().isEmpty()){
             postCommentAdmin(request.getComment(),email, incident);
         }
 
     }
 
-    private void changeStateSons(Incident incident, EIncidentStatePublic newState){
-        List<Incident> sons = incidentRepository.findAllByParent(incident);
-        for (Incident son: sons) {
-            changeStateIncident(son, newState);
-        }
-    }
-    private void changeStateFamily(Incident incident, EIncidentStatePublic newState){
-        List<Incident> family = incidentRepository.findAllByParent(incident.getParent());
-        for (Incident familiar: family) {
-            if(!incident.getId().equals(familiar.getId())){
-                changeStateIncident(familiar, newState);
-            }
-        }
-        changeStateIncident(incident.getParent(), newState);
-    }
 
     private void changeStateIncident(Incident incident, EIncidentStatePublic state){
         if(state.equals(EIncidentStatePublic.RESUELTO) || state.equals(EIncidentStatePublic.INVALIDO)  ){
@@ -383,32 +366,12 @@ public class IncidentService implements IIncidentService {
 
         changeStatePrivateIncident(incident,newState);
 
-        if(incident.getParent() != null){
-            changeStatePrivateFamily(incident,newState);
-        }else{
-            changeStatePrivateSons(incident,newState);
-        }
         if(request.getComment() != null && !request.getComment().isEmpty()){
             postCommentAdmin(request.getComment(),email, incident);
         }
 
     }
 
-    private void changeStatePrivateSons(Incident incident, EIncidentStatePrivate newState){
-        List<Incident> sons = incidentRepository.findAllByParent(incident);
-        for (Incident son: sons) {
-            changeStatePrivateIncident(son, newState);
-        }
-    }
-    private void changeStatePrivateFamily(Incident incident, EIncidentStatePrivate newState){
-        List<Incident> family = incidentRepository.findAllByParent(incident.getParent());
-        for (Incident familiar: family) {
-            if(!incident.getId().equals(familiar.getId())){
-                changeStatePrivateIncident(familiar, newState);
-            }
-        }
-        changeStatePrivateIncident(incident.getParent(), newState);
-    }
 
     private void changeStatePrivateIncident(Incident incident, EIncidentStatePrivate state){
         if(state.equals(EIncidentStatePrivate.RECHAZO_PRESUPUESTO) || state.equals(EIncidentStatePrivate.RESUELTO)  ){
