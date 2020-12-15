@@ -5,22 +5,26 @@ import com.lucas3.contanos.model.exception.EmailTakenException;
 import com.lucas3.contanos.model.exception.FailedToLoadImageException;
 import com.lucas3.contanos.model.exception.InvalidPasswordException;
 import com.lucas3.contanos.model.exception.UserNotFoundException;
+import com.lucas3.contanos.model.request.LoginRequest;
 import com.lucas3.contanos.model.request.RegisterRequest;
 import com.lucas3.contanos.model.request.UpdateUserRequest;
 import com.lucas3.contanos.model.response.UserResponse;
 import org.junit.Assert;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 
 // Test del servicio de reportes
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@AutoConfigureMockMvc
+@RunWith(SpringRunner.class)
 public class UserServiceTests {
 
     @Autowired
@@ -91,5 +95,18 @@ public class UserServiceTests {
         Assert.assertEquals(user.getRol(), ERole.ROLE_ADMIN.toString());
         Assert.assertEquals(user.getName(), "update");
         Assert.assertEquals(user.getSurname(), "prueba2");
+    }
+
+    @Test
+    public void authenticateUserTest() throws EmailTakenException, InvalidPasswordException {
+
+        RegisterRequest register = new RegisterRequest("prueba@prueba.com", "Prueba123#");
+        userService.registerUser(register);
+
+        LoginRequest request = new LoginRequest("prueba@prueba.com", "Prueba123#");
+        ResponseEntity <?> response = userService.authenticateUser(request);
+
+        Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
+
     }
 }
